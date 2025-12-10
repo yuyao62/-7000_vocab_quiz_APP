@@ -1,0 +1,584 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2867
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="zh-Hant">\
+<head>\
+  <meta charset="UTF-8" />\
+  <title>Vocabulary Trainer Web</title>\
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />\
+  <style>\
+    body \{\
+      margin: 0;\
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",\
+        sans-serif;\
+      background: #f5f5f5;\
+      color: #222;\
+      display: flex;\
+      min-height: 100vh;\
+    \}\
+\
+    .sidebar \{\
+      width: 320px;\
+      background: #ffffff;\
+      padding: 20px;\
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);\
+      box-sizing: border-box;\
+    \}\
+\
+    .main \{\
+      flex: 1;\
+      padding: 20px;\
+      box-sizing: border-box;\
+      display: flex;\
+      flex-direction: column;\
+      align-items: center;\
+      justify-content: flex-start;\
+    \}\
+\
+    h1 \{\
+      font-size: 28px;\
+      margin: 0 0 20px;\
+      text-align: center;\
+    \}\
+\
+    h2 \{\
+      font-size: 20px;\
+      margin-top: 0;\
+    \}\
+\
+    label \{\
+      display: block;\
+      margin-top: 12px;\
+      font-size: 14px;\
+    \}\
+\
+    input[type="text"],\
+    input[type="number"] \{\
+      width: 100%;\
+      padding: 8px 10px;\
+      margin-top: 4px;\
+      border-radius: 6px;\
+      border: 1px solid #ccc;\
+      box-sizing: border-box;\
+      font-size: 14px;\
+    \}\
+\
+    button \{\
+      border: none;\
+      border-radius: 999px;\
+      padding: 10px 20px;\
+      font-size: 14px;\
+      cursor: pointer;\
+      margin-top: 14px;\
+      transition: transform 0.05s ease, box-shadow 0.05s ease, opacity 0.1s;\
+    \}\
+\
+    button:active \{\
+      transform: translateY(1px);\
+      box-shadow: none;\
+      opacity: 0.9;\
+    \}\
+\
+    .btn-primary \{\
+      background: #4f8cff;\
+      color: white;\
+      box-shadow: 0 3px 10px rgba(79, 140, 255, 0.4);\
+      width: 100%;\
+    \}\
+\
+    .btn-secondary \{\
+      background: #ffe9a3;\
+      color: #222;\
+      width: 100%;\
+    \}\
+\
+    .btn-outline \{\
+      background: white;\
+      color: #222;\
+      border: 1px solid #ddd;\
+      width: 100%;\
+    \}\
+\
+    .question-card \{\
+      background: #ffffff;\
+      border-radius: 18px;\
+      padding: 24px 20px 30px;\
+      width: 100%;\
+      max-width: 640px;\
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);\
+      box-sizing: border-box;\
+      margin-top: 20px;\
+    \}\
+\
+    .info-bar \{\
+      font-size: 14px;\
+      color: #666;\
+      margin-bottom: 10px;\
+      display: flex;\
+      justify-content: space-between;\
+    \}\
+\
+    .word \{\
+      font-size: 32px;\
+      font-weight: 700;\
+      margin-bottom: 10px;\
+    \}\
+\
+    .example \{\
+      font-size: 14px;\
+      color: #777;\
+      margin-bottom: 18px;\
+    \}\
+\
+    .options \{\
+      display: flex;\
+      flex-direction: column;\
+      gap: 10px;\
+      margin-bottom: 18px;\
+    \}\
+\
+    .option-btn \{\
+      text-align: left;\
+      width: 100%;\
+      border-radius: 999px;\
+      padding: 10px 14px;\
+      background: #f8f8f8;\
+      border: 1px solid transparent;\
+      font-size: 15px;\
+    \}\
+\
+    .option-btn.selected \{\
+      border-color: #4f8cff;\
+      background: #e8f0ff;\
+    \}\
+\
+    .option-btn.correct \{\
+      background: #ccffcc;\
+      border-color: #5abf5a;\
+    \}\
+\
+    .option-btn.wrong \{\
+      background: #ffcccc;\
+      border-color: #ff6666;\
+    \}\
+\
+    .actions \{\
+      display: flex;\
+      gap: 10px;\
+      flex-wrap: wrap;\
+    \}\
+\
+    .actions button \{\
+      flex: 1;\
+      min-width: 120px;\
+    \}\
+\
+    .hint \{\
+      font-size: 12px;\
+      color: #888;\
+      margin-top: 4px;\
+    \}\
+\
+    @media (max-width: 800px) \{\
+      body \{\
+        flex-direction: column;\
+      \}\
+      .sidebar \{\
+        width: 100%;\
+        box-shadow: none;\
+        border-bottom: 1px solid #ddd;\
+      \}\
+      .main \{\
+        padding: 10px;\
+      \}\
+      .question-card \{\
+        margin-top: 10px;\
+      \}\
+    \}\
+  </style>\
+</head>\
+<body>\
+  <div class="sidebar">\
+    <h1>Vocabulary Trainer</h1>\
+    <h2>\uc0\u35373 \u23450 </h2>\
+    <label>\
+      \uc0\u36984 \u25799  Level\u65288 \u21487 \u28151 \u21512 \u65289 \u65306 \
+      <input\
+        id="levelsInput"\
+        type="text"\
+        placeholder="\uc0\u20363 \u22914 \u65306 1\u12289 135\u12289 456\u12289 123456 \u25110  ALL"\
+      />\
+      <div class="hint">\uc0\u21482 \u26371 \u35469  1~6 \u30340 \u25976 \u23383 \u65307 ALL = \u20840 \u37096  Level\u12290 </div>\
+    </label>\
+\
+    <label>\
+      \uc0\u38988 \u25976 \u65306 \
+      <input\
+        id="countInput"\
+        type="number"\
+        min="1"\
+        placeholder="\uc0\u20363 \u22914  10\u12289 50\u12289 100..."\
+      />\
+      <div class="hint">\uc0\u23526 \u38555 \u38988 \u25976 \u19981 \u26371 \u36229 \u36942 \u35442  Level \u30340 \u21934 \u23383 \u25976 \u37327 \u12290 </div>\
+    </label>\
+\
+    <button class="btn-primary" id="startBtn">\uc0\u38283 \u22987 \u28204 \u39511 \u65288 \u33521  \u8594  \u20013 \u65289 </button>\
+    <button class="btn-secondary" id="reviewBtn">\uc0\u35079 \u32722 \u37679 \u38988 </button>\
+    <button class="btn-outline" id="clearWrongBtn">\uc0\u28165 \u38500 \u37679 \u38988 \u32000 \u37636 </button>\
+\
+    <p class="hint">\
+      \uc0\u37679 \u38988 \u26371 \u23384 \u21040 \u28687 \u35261 \u22120 \u30340  localStorage\u65292 \u38364 \u25481 \u32178 \u38913 \u20063 \u26371 \u35352 \u24471 \u12290 </p>\
+  </div>\
+\
+  <div class="main">\
+    <div id="welcome">\
+      <h2>\uc0\u20351 \u29992 \u35498 \u26126 </h2>\
+      <p>\uc0\u24038 \u20596 \u36664 \u20837 \u24819 \u35201 \u32244 \u32722 \u30340  Level \u33287 \u38988 \u25976 \u65292 \u25353 \u12300 \u38283 \u22987 \u28204 \u39511 \u12301 \u12290 </p>\
+      <ul>\
+        <li>Level\uc0\u65306 \u36664 \u20837  <b>1~6 \u20219 \u24847 \u32068 \u21512 </b>\u65292 \u20363 \u22914  <code>135</code>\u12289 <code>24</code>\u12290 </li>\
+        <li>\uc0\u36664 \u20837  <code>ALL</code> \u20195 \u34920  Level 1~6 \u20840 \u37096 \u12290 </li>\
+        <li>\uc0\u27599 \u38988 \u22235 \u36984 \u19968 \u65306 \u33521  \u8594  \u20013 \u12290 </li>\
+        <li>\uc0\u21487 \u20197 \u20808 \u20316 \u31572 \u65292 \u20877 \u25353 \u12300 \u30475 \u31572 \u26696 \u12301 \u65292 \u26371 \u27161 \u31034 \u27491 \u30906  / \u37679 \u35492 \u12290 </li>\
+        <li>\uc0\u37679 \u30340 \u38988 \u30446 \u26371 \u35352 \u37636 \u36215 \u20358 \u65292 \u20043 \u24460 \u21487 \u25353 \u12300 \u35079 \u32722 \u37679 \u38988 \u12301 \u12290 </li>\
+      </ul>\
+      <p class="hint">\uc0\u30446 \u21069 \u20839 \u24314 \u31034 \u31684 \u23569 \u37327 \u21934 \u23383 \u65292 \u20320 \u20043 \u24460 \u21487 \u20197 \u25226 \u23436 \u25972 \u21934 \u23383 \u34920 \u36028 \u21040 \u31243 \u24335 \u35041 \u12290 </p>\
+    </div>\
+\
+    <div class="question-card" id="questionCard" style="display: none;">\
+      <div class="info-bar">\
+        <span id="levelInfo"></span>\
+        <span id="progressInfo"></span>\
+      </div>\
+      <div class="word" id="wordText"></div>\
+      <div class="example" id="exampleText"></div>\
+\
+      <div class="options" id="optionsContainer"></div>\
+\
+      <div class="actions">\
+        <button id="speakBtn">\uc0\u55357 \u56586  \u30332 \u38899 </button>\
+        <button id="answerBtn" class="btn-secondary">\uc0\u30475 \u31572 \u26696 </button>\
+        <button id="nextBtn" class="btn-primary" style="display: none;">\
+          \uc0\u19979 \u19968 \u38988 \
+        </button>\
+      </div>\
+    </div>\
+  </div>\
+\
+  <script>\
+    // ============================\
+    // 1. \uc0\u21934 \u23383 \u36039 \u26009 \u65288 \u31034 \u31684 \u29992 \u65289 \
+    // ============================\
+    // \uc0\u9888 \u65039  \u36889 \u35041 \u30446 \u21069 \u21482 \u25918 \u12300 \u31034 \u31684 \u12301 \u30340 \u23569 \u37327 \u21934 \u23383 \u12290 \
+    // \uc0\u32080 \u27083 \u26159 \u65306 \
+    // \{ word: "\uc0\u33521 \u25991 \u21934 \u23383 ", definition: "\u20013 \u25991 \u35299 \u37323 ", level: "Level X" \}\
+    // \uc0\u20043 \u24460 \u20320 \u21487 \u20197 \u29992  Python \u25226 \u25972 \u20221  PDF \u35299 \u26512 \u25104 \u36889 \u20491 \u26684 \u24335 \u30340 \u28165 \u21934 \u65292 \u36028 \u36942 \u20358 \u26367 \u25563 \u12290 \
+\
+    const VOCAB = [\
+      \{ word: "abandon", definition: "\uc0\u25291 \u26820 \u65307 \u25918 \u26820 ", level: "Level 1" \},\
+      \{ word: "ability", definition: "\uc0\u33021 \u21147 ", level: "Level 1" \},\
+      \{ word: "abroad", definition: "\uc0\u22312 \u22283 \u22806 \u65307 \u21040 \u22283 \u22806 ", level: "Level 1" \},\
+      \{ word: "absent", definition: "\uc0\u32570 \u24109 \u30340 \u65307 \u19981 \u22312 \u22580 \u30340 ", level: "Level 1" \},\
+      \{ word: "absolute", definition: "\uc0\u32085 \u23565 \u30340 \u65307 \u23436 \u20840 \u30340 ", level: "Level 2" \},\
+      \{ word: "absorb", definition: "\uc0\u21560 \u25910 \u65307 \u20351 \u23560 \u24515 ", level: "Level 2" \},\
+      \{ word: "academic", definition: "\uc0\u23416 \u34899 \u30340 ", level: "Level 3" \},\
+      \{ word: "accept", definition: "\uc0\u25509 \u21463 \u65307 \u21516 \u24847 ", level: "Level 1" \},\
+      \{ word: "access", definition: "\uc0\u25509 \u36817 \u65307 \u20351 \u29992 \u27402 ", level: "Level 3" \},\
+      \{ word: "accident", definition: "\uc0\u24847 \u22806 \u65307 \u20107 \u25925 ", level: "Level 1" \},\
+      \{ word: "accompany", definition: "\uc0\u38506 \u21516 \u65307 \u20276 \u38568 ", level: "Level 2" \},\
+      \{ word: "account", definition: "\uc0\u24115 \u25142 \u65307 \u35498 \u26126 ", level: "Level 3" \}\
+      // TODO: \uc0\u20043 \u24460 \u21487 \u20197 \u25226 \u25972 \u20221 \u22823 \u32771 \u20013 \u24515 \u21934 \u23383 \u34920 \u36681 \u25104 \u36889 \u20491 \u26684 \u24335 \u65292 \u20840 \u37096 \u36028 \u36914 \u20358 \
+    ];\
+\
+    // ============================\
+    // 2. \uc0\u37679 \u38988 \u31649 \u29702 \u65288 localStorage\u65289 \
+    // ============================\
+    function loadWrongFromStorage() \{\
+      try \{\
+        const raw = localStorage.getItem("vocabTrainerWrong");\
+        return raw ? JSON.parse(raw) : [];\
+      \} catch (e) \{\
+        return [];\
+      \}\
+    \}\
+\
+    function saveWrongToStorage(list) \{\
+      localStorage.setItem("vocabTrainerWrong", JSON.stringify(list));\
+    \}\
+\
+    let wrongWords = loadWrongFromStorage();\
+\
+    // ============================\
+    // 3. \uc0\u24037 \u20855 \u20989 \u24335 \
+    // ============================\
+    function shuffle(array) \{\
+      const arr = array.slice();\
+      for (let i = arr.length - 1; i > 0; i--) \{\
+        const j = Math.floor(Math.random() * (i + 1));\
+        [arr[i], arr[j]] = [arr[j], arr[i]];\
+      \}\
+      return arr;\
+    \}\
+\
+    function makeExampleSentence(word) \{\
+      return `I often use the word "$\{word\}" in my daily life.`;\
+    \}\
+\
+    // ============================\
+    // 4. \uc0\u38988 \u30446 \u29983 \u25104 \
+    // ============================\
+    function generateQuizEnToZh(vocab, numQuestions) \{\
+      const pool = vocab.concat(wrongWords, wrongWords); // \uc0\u37679 \u38988 \u21152 \u27402 \
+      if (pool.length === 0) return [];\
+\
+      const shuffledPool = shuffle(pool);\
+      const selected = shuffledPool.slice(0, Math.min(numQuestions, shuffledPool.length));\
+\
+      return selected.map(item => \{\
+        const correct = item.definition;\
+        const distractorsSource = vocab.filter(v => v.definition !== correct);\
+        let distractors = shuffle(distractorsSource).slice(0, 3).map(v => v.definition);\
+\
+        if (distractors.length < 3) \{\
+          distractors = distractorsSource.map(v => v.definition);\
+        \}\
+\
+        const options = shuffle([...distractors.slice(0, 3), correct]);\
+\
+        return \{\
+          word: item.word,\
+          definition: item.definition,\
+          level: item.level || "",\
+          options,\
+          answer: correct,\
+          example: makeExampleSentence(item.word)\
+        \};\
+      \});\
+    \}\
+\
+    // ============================\
+    // 5. Quiz \uc0\u29376 \u24907 \
+    // ============================\
+    let currentQuiz = [];\
+    let currentIndex = 0;\
+    let currentScore = 0;\
+    let selectedOption = null;\
+    let showingAnswer = false;\
+\
+    // ============================\
+    // 6. DOM \uc0\u20803 \u32032 \
+    // ============================\
+    const levelsInput = document.getElementById("levelsInput");\
+    const countInput = document.getElementById("countInput");\
+    const startBtn = document.getElementById("startBtn");\
+    const reviewBtn = document.getElementById("reviewBtn");\
+    const clearWrongBtn = document.getElementById("clearWrongBtn");\
+\
+    const welcome = document.getElementById("welcome");\
+    const questionCard = document.getElementById("questionCard");\
+    const levelInfo = document.getElementById("levelInfo");\
+    const progressInfo = document.getElementById("progressInfo");\
+    const wordText = document.getElementById("wordText");\
+    const exampleText = document.getElementById("exampleText");\
+    const optionsContainer = document.getElementById("optionsContainer");\
+    const speakBtn = document.getElementById("speakBtn");\
+    const answerBtn = document.getElementById("answerBtn");\
+    const nextBtn = document.getElementById("nextBtn");\
+\
+    // ============================\
+    // 7. \uc0\u39023 \u31034 \u38988 \u30446 \
+    // ============================\
+    function renderQuestion() \{\
+      if (currentQuiz.length === 0 || currentIndex >= currentQuiz.length) \{\
+        questionCard.style.display = "none";\
+        welcome.style.display = "block";\
+        return;\
+      \}\
+\
+      const q = currentQuiz[currentIndex];\
+      showingAnswer = false;\
+      selectedOption = null;\
+\
+      welcome.style.display = "none";\
+      questionCard.style.display = "block";\
+\
+      levelInfo.textContent = q.level || "";\
+      progressInfo.textContent = `\uc0\u31532  $\{currentIndex + 1\} / $\{currentQuiz.length\} \u38988 `;\
+\
+      wordText.textContent = q.word;\
+      exampleText.textContent = `\uc0\u20363 \u21477 \u65306 $\{q.example\}`;\
+\
+      optionsContainer.innerHTML = "";\
+      q.options.forEach(opt => \{\
+        const btn = document.createElement("button");\
+        btn.className = "option-btn";\
+        btn.textContent = opt;\
+        btn.addEventListener("click", () => \{\
+          if (showingAnswer) return;\
+          selectedOption = opt;\
+          document\
+            .querySelectorAll(".option-btn")\
+            .forEach(b => b.classList.remove("selected"));\
+          btn.classList.add("selected");\
+        \});\
+        optionsContainer.appendChild(btn);\
+      \});\
+\
+      answerBtn.style.display = "inline-block";\
+      nextBtn.style.display = "none";\
+    \}\
+\
+    // ============================\
+    // 8. \uc0\u30475 \u31572 \u26696 \
+    // ============================\
+    function revealAnswer() \{\
+      if (showingAnswer) return;\
+      const q = currentQuiz[currentIndex];\
+\
+      if (!selectedOption) \{\
+        alert("\uc0\u35531 \u20808 \u36984 \u25799 \u19968 \u20491 \u31572 \u26696 ");\
+        return;\
+      \}\
+\
+      if (selectedOption === q.answer) \{\
+        currentScore++;\
+      \} else \{\
+        // \uc0\u35352 \u37636 \u37679 \u38988 \u65288 \u21482 \u23384 \u22522 \u26412 \u36039 \u35338 \u65289 \
+        wrongWords.push(\{\
+          word: q.word,\
+          definition: q.definition,\
+          level: q.level\
+        \});\
+        saveWrongToStorage(wrongWords);\
+      \}\
+\
+      const buttons = optionsContainer.querySelectorAll(".option-btn");\
+      buttons.forEach(btn => \{\
+        const val = btn.textContent;\
+        btn.classList.remove("selected");\
+        if (val === q.answer) \{\
+          btn.classList.add("correct");\
+        \} else if (val === selectedOption) \{\
+          btn.classList.add("wrong");\
+        \}\
+      \});\
+\
+      showingAnswer = true;\
+      answerBtn.style.display = "none";\
+      nextBtn.style.display = "inline-block";\
+    \}\
+\
+    // ============================\
+    // 9. \uc0\u19979 \u19968 \u38988 \
+    // ============================\
+    function gotoNextQuestion() \{\
+      currentIndex++;\
+      if (currentIndex >= currentQuiz.length) \{\
+        alert(`\uc0\u23436 \u25104 \u28204 \u39511 \u65281 \\n\u20320 \u31572 \u23565  $\{currentScore\} \u38988 \u65292 \u20849  $\{currentQuiz.length\} \u38988 \u12290 `);\
+        questionCard.style.display = "none";\
+        welcome.style.display = "block";\
+        return;\
+      \}\
+      renderQuestion();\
+    \}\
+\
+    // ============================\
+    // 10. \uc0\u30332 \u38899 \
+    // ============================\
+    function speakWord() \{\
+      if (!("speechSynthesis" in window)) \{\
+        alert("\uc0\u27492 \u28687 \u35261 \u22120 \u19981 \u25903 \u25588 \u35486 \u38899 \u25773 \u25918 ");\
+        return;\
+      \}\
+      if (currentQuiz.length === 0) return;\
+      const q = currentQuiz[currentIndex];\
+      const utterance = new SpeechSynthesisUtterance(q.word);\
+      utterance.lang = "en-US";\
+      window.speechSynthesis.speak(utterance);\
+    \}\
+\
+    // ============================\
+    // 11. \uc0\u35299 \u26512  Level \u36664 \u20837 \
+    // ============================\
+    function parseLevelsInput(raw) \{\
+      raw = raw.trim().toUpperCase();\
+      if (!raw) return [];\
+\
+      if (raw === "ALL") \{\
+        return ["Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6"];\
+      \}\
+\
+      const digits = [];\
+      for (const ch of raw) \{\
+        if ("123456".includes(ch) && !digits.includes(ch)) \{\
+          digits.push(ch);\
+        \}\
+      \}\
+      return digits.map(d => `Level $\{d\}`);\
+    \}\
+\
+    // ============================\
+    // 12. \uc0\u20107 \u20214 \u32129 \u23450 \
+    // ============================\
+    startBtn.addEventListener("click", () => \{\
+      const levelStr = levelsInput.value;\
+      const levels = parseLevelsInput(levelStr);\
+\
+      if (levels.length === 0) \{\
+        alert("\uc0\u35531 \u36664 \u20837 \u33267 \u23569 \u19968 \u20491  Level\u65288 1~6\u65289 \u25110  ALL");\
+        return;\
+      \}\
+\
+      const levelVocab = VOCAB.filter(v => levels.includes(v.level));\
+      if (levelVocab.length === 0) \{\
+        alert("\uc0\u36889 \u20123  Level \u24213 \u19979 \u30446 \u21069 \u27794 \u26377 \u21934 \u23383 \u65288 \u25110 \u23578 \u26410 \u22635 \u20837 \u65289 \u65292 \u35531 \u35519 \u25972 \u24460 \u20877 \u35430 \u12290 ");\
+        return;\
+      \}\
+\
+      const numStr = countInput.value.trim() || "10";\
+      const num = parseInt(numStr, 10);\
+      if (isNaN(num) || num <= 0) \{\
+        alert("\uc0\u35531 \u36664 \u20837 \u27491 \u30906 \u30340 \u38988 \u25976 \u65288 \u27491 \u25972 \u25976 \u65289 ");\
+        return;\
+      \}\
+\
+      currentQuiz = generateQuizEnToZh(levelVocab, num);\
+      if (currentQuiz.length === 0) \{\
+        alert("\uc0\u28961 \u27861 \u29986 \u29983 \u38988 \u30446 \u65292 \u35531 \u30906 \u35469 \u21934 \u23383 \u36039 \u26009 \u12290 ");\
+        return;\
+      \}\
+      currentIndex = 0;\
+      currentScore = 0;\
+      renderQuestion();\
+    \});\
+\
+    reviewBtn.addEventListener("click", () => \{\
+      if (wrongWords.length === 0) \{\
+        alert("\uc0\u30446 \u21069 \u27794 \u26377 \u37679 \u38988 \u32000 \u37636 \u65281 ");\
+        return;\
+      \}\
+      const num = Math.min(10, wrongWords.length);\
+      currentQuiz = generateQuizEnToZh(wrongWords, num);\
+      currentIndex = 0;\
+      currentScore = 0;\
+      renderQuestion();\
+    \});\
+\
+    clearWrongBtn.addEventListener("click", () => \{\
+      if (!confirm("\uc0\u30906 \u23450 \u35201 \u28165 \u38500 \u25152 \u26377 \u37679 \u38988 \u32000 \u37636 \u21966 \u65311 ")) return;\
+      wrongWords = [];\
+      saveWrongToStorage(wrongWords);\
+      alert("\uc0\u24050 \u28165 \u38500 \u37679 \u38988 \u32000 \u37636 \u12290 ");\
+    \});\
+\
+    speakBtn.addEventListener("click", speakWord);\
+    answerBtn.addEventListener("click", revealAnswer);\
+    nextBtn.addEventListener("click", gotoNextQuestion);\
+  </script>\
+</body>\
+</html>\
+}
