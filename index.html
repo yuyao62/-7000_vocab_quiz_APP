@@ -1,147 +1,307 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<title>Vocabulary Trainer</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <title>Vocabulary Trainer Web</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<style>
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #eef1f7;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    padding: 20px;
-  }
-  .app {
-    width: 420px;
-    background: #fff;
-    padding: 24px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,.15);
-  }
-  h1 { text-align:center; margin:0 0 8px; }
-  .label { color:#475569; font-size:14px; margin-bottom:4px; }
-  .ch { font-size:20px; font-weight:600; margin-bottom:6px; }
-  .level { font-size:12px; color:#0369a1; background:#e0f2fe; padding:2px 8px; border-radius:12px; display:inline-block; }
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
 
-  select, input {
-    width: 100%;
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid #cbd5e1;
-    font-size: 15px;
-    margin-bottom: 10px;
-  }
-  button {
-    padding:10px;
-    border-radius:10px;
-    font-size:15px;
-    cursor:pointer;
-    border:none;
-    width:48%;
-  }
-  .primary { background:#4f46e5; color:#fff; }
-  .secondary { background:#e2e8f0; }
-  .row { display:flex; justify-content:space-between; margin-top:6px; }
-  .msg { min-height:22px; margin-top:8px; font-size:14px; }
-  .ok { color:#15803d; }
-  .wrong { color:#b91c1c; }
-</style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #eef1f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .app {
+      background: #ffffff;
+      width: min(480px, 100%);
+      margin: 24px;
+      border-radius: 24px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+      padding: 28px 28px 20px;
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #64748b;
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #475569;
+    }
+
+    .stats {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .badge {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-green { background: #dcfce7; color: #15803d; }
+    .badge-red { background: #fee2e2; color: #b91c1c; }
+    .badge-gray { background: #e2e8f0; color: #334155; }
+
+    .level-select {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    select {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #cbd5f5;
+      font-size: 13px;
+      background: #f8fafc;
+      outline: none;
+    }
+
+    .card {
+      background: #f8fafc;
+      border-radius: 16px;
+      padding: 14px 14px 10px;
+      margin-bottom: 18px;
+    }
+
+    .label {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+
+    .chinese {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #0f172a;
+    }
+
+    .level-tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .input-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid #cbd5f5;
+      outline: none;
+      font-size: 15px;
+    }
+
+    input[type="text"]:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 1px #6366f133;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    button {
+      flex: 1;
+      padding: 9px 10px;
+      border-radius: 999px;
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary { background: #4f46e5; color: #fff; }
+    .btn-secondary { background: #e2e8f0; color: #1e293b; }
+
+    .answer-row {
+      font-size: 14px;
+      margin-bottom: 4px;
+      min-height: 22px;
+    }
+
+    .answer-ok { color: #15803d; }
+    .answer-wrong { color: #b91c1c; }
+
+    .tip {
+      font-size: 12px;
+      color: #94a3b8;
+      text-align: center;
+      border-top: 1px dashed #e2e8f0;
+      padding-top: 6px;
+      margin-top: 4px;
+    }
+  </style>
 </head>
 
 <body>
-<div class="app">
-  <h1>Vocabulary Trainer</h1>
+  <div class="app">
+    <h1>Vocabulary Trainer</h1>
+    <div class="subtitle">中文 ➜ 請輸入英文單字</div>
 
-  <div class="label">選擇 Level</div>
-  <select id="levelSelect"></select>
+    <div class="top-row">
+      <div id="counter">題目：0 / 0</div>
+      <div class="stats">
+        <span class="badge badge-green" id="correctBadge">0</span>
+        <span class="badge badge-red" id="wrongBadge">0</span>
+        <span class="badge badge-gray" id="accuracyBadge">0%</span>
+      </div>
+    </div>
 
-  <div class="label">中文 / 解釋</div>
-  <div id="chinese" class="ch"></div>
-  <div id="levelTag" class="level"></div>
+    <div class="top-row" style="margin-bottom: 10px;">
+      <div class="level-select">
+        <span>出題 Level：</span>
+        <select id="levelSelect"></select>
+      </div>
+      <span id="poolInfo" style="font-size: 12px; color:#94a3b8;"></span>
+    </div>
 
-  <div class="label" style="margin-top:14px;">請輸入英文</div>
-  <input id="inputWord" placeholder="輸入英文後按 Enter 或按按鈕">
+    <div class="card">
+      <div class="label">中文 / 解釋</div>
+      <div class="chinese" id="chineseText">載入中…</div>
+      <div class="level-tag" id="levelTag">Level ?</div>
+    </div>
 
-  <div class="row">
-    <button class="primary" id="checkBtn">檢查答案</button>
-    <button class="secondary" id="nextBtn">下一題</button>
+    <div class="input-row">
+      <div style="display:flex; justify-content: space-between;">
+        <span class="label">請輸入英文單字</span>
+        <button id="showAnswerBtn" class="btn-secondary" style="padding:4px 10px; font-size:12px;">顯示答案</button>
+      </div>
+      <input id="answerInput" placeholder="輸入英文，Enter 或按『檢查』">
+    </div>
+
+    <div class="btn-row">
+      <button id="checkBtn" class="btn-primary">檢查答案</button>
+      <button id="nextBtn" class="btn-secondary">下一題</button>
+    </div>
+
+    <div id="feedback" class="answer-row"></div>
+    <div class="tip">Tip：按 Enter 也可以快速送出答案；右上角可切換出題 Level。</div>
   </div>
 
-  <div id="msg" class="msg"></div>
-  <div id="stats" class="label" style="text-align:center; margin-top:10px;"></div>
-</div>
-
 <script>
-let vocab = [];
+let allVocab = [];
 let filtered = [];
 let index = 0;
 
 let correct = 0, wrong = 0;
 
-const chinese = document.getElementById("chinese");
+// DOM
+const chinese = document.getElementById("chineseText");
 const levelTag = document.getElementById("levelTag");
 const levelSelect = document.getElementById("levelSelect");
-const msg = document.getElementById("msg");
-const stats = document.getElementById("stats");
-const inputWord = document.getElementById("inputWord");
+const counter = document.getElementById("counter");
+const poolInfo = document.getElementById("poolInfo");
+const feedback = document.getElementById("feedback");
+const accuracy = document.getElementById("accuracyBadge");
 
 async function loadVocab() {
   const res = await fetch("vocab_ceec_1_6.json");
-  vocab = await res.json();
+  allVocab = await res.json();
 
-  const levels = [...new Set(vocab.map(v => v.level))];
-  levelSelect.innerHTML = `<option value="ALL">全部</option>` +
+  // 產生 Level 選項
+  const levels = [...new Set(allVocab.map(v => v.level))];
+  levelSelect.innerHTML =
+    `<option value="ALL">全部</option>` +
     levels.map(l => `<option>${l}</option>`).join("");
 
   levelSelect.addEventListener("change", applyFilter);
+
   applyFilter();
 }
 
 function applyFilter() {
-  const lv = levelSelect.value;
-  filtered = (lv === "ALL") ? [...vocab] : vocab.filter(v => v.level === lv);
+  const selected = levelSelect.value;
+
+  filtered = selected === "ALL"
+    ? [...allVocab]
+    : allVocab.filter(v => v.level === selected);
 
   shuffle(filtered);
   index = 0;
   correct = wrong = 0;
+
   updateStats();
-  nextQuestion();
+  nextQ();
 }
 
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+    [a[i], a[j]] = [a[j], a[i]];
   }
 }
 
-function nextQuestion() {
-  msg.textContent = "";
-  inputWord.value = "";
-  inputWord.focus();
+function nextQ() {
+  feedback.textContent = "";
+  document.getElementById("answerInput").value = "";
 
-  if (index >= filtered.length) { shuffle(filtered); index = 0; }
+  if (index >= filtered.length) index = 0;
 
   const item = filtered[index];
-  chinese.textContent = item.definition;
+  chinese.textContent = item.definition || "(無中文)";
   levelTag.textContent = item.level;
+  counter.textContent = `題目：${index + 1} / ${filtered.length}`;
 }
 
 function checkAnswer() {
   const item = filtered[index];
-  const ans = inputWord.value.trim().toLowerCase();
+  const ans = document.getElementById("answerInput").value.trim().toLowerCase();
   const correctWord = item.word.toLowerCase();
 
   if (ans === correctWord) {
-    msg.textContent = `✔ 正確！${correctWord}`;
-    msg.className = "msg ok";
+    feedback.textContent = `✔ 正確！${correctWord}`;
+    feedback.className = "answer-row answer-ok";
     correct++;
   } else {
-    msg.textContent = `✘ 錯誤，正確答案：${correctWord}`;
-    msg.className = "msg wrong";
+    feedback.textContent = `✘ 錯誤，正確答案：${correctWord}`;
+    feedback.className = "answer-row answer-wrong";
     wrong++;
   }
 
@@ -152,13 +312,20 @@ function checkAnswer() {
 function updateStats() {
   const total = correct + wrong;
   const acc = total === 0 ? 0 : Math.round((correct / total) * 100);
-  stats.textContent = `正確：${correct}　錯誤：${wrong}　正確率：${acc}%`;
+
+  document.getElementById("correctBadge").textContent = correct;
+  document.getElementById("wrongBadge").textContent = wrong;
+  accuracy.textContent = acc + "%";
 }
 
 document.getElementById("checkBtn").onclick = checkAnswer;
-document.getElementById("nextBtn").onclick = nextQuestion;
+document.getElementById("nextBtn").onclick = nextQ;
+document.getElementById("showAnswerBtn").onclick = () => {
+  const item = filtered[index];
+  feedback.textContent = `答案：${item.word}`;
+};
 
-inputWord.addEventListener("keydown", e => {
+document.getElementById("answerInput").addEventListener("keydown", e => {
   if (e.key === "Enter") checkAnswer();
 });
 
