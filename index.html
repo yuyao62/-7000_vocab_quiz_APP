@@ -241,7 +241,7 @@
       <div class="level-select">
         <span>出題 Level：</span>
         <select id="levelSelect">
-          <!-- 這裡會由 JS 動態填入 -->
+          <!-- JS 動態填入 -->
         </select>
       </div>
       <span style="font-size: 12px; color:#94a3b8;" id="poolInfo"></span>
@@ -317,7 +317,7 @@
         .replace(/\s+/g, " ");
     }
 
-    // 從 vocab.json 讀資料
+    // 從 vocab_ceec_1_6.json 讀資料
     async function loadVocab() {
       try {
         const res = await fetch("vocab_ceec_1_6.json");
@@ -325,7 +325,7 @@
         allVocab = Array.isArray(data) ? data : [];
 
         if (allVocab.length === 0) {
-          chineseText.textContent = "vocab.json 內容是空的";
+          chineseText.textContent = "vocab_ceec_1_6.json 內容是空的";
           return;
         }
 
@@ -336,7 +336,7 @@
 
       } catch (err) {
         console.error(err);
-        chineseText.textContent = "無法讀取 vocab.json，請確認檔案存在且格式正確。";
+        chineseText.textContent = "無法載入 vocab_ceec_1_6.json，請檢查檔案路徑與格式。";
       }
     }
 
@@ -350,8 +350,9 @@
         if (lv) levelSet.add(String(lv));
       });
 
-      // 先加「全部」
       levelSelect.innerHTML = "";
+
+      // 先加「全部」
       const optAll = document.createElement("option");
       optAll.value = "ALL";
       optAll.textContent = "全部 Level";
@@ -359,7 +360,7 @@
 
       const levelArr = Array.from(levelSet);
 
-      // 盡量以數字排序（例如 Level 1, Level 2, Level 3…）
+      // 盡量以數字排序（Level 1, Level 2, Level 3…）
       levelArr.sort((a, b) => {
         const na = parseInt(String(a).replace(/\D/g, "")) || 0;
         const nb = parseInt(String(b).replace(/\D/g, "")) || 0;
@@ -434,7 +435,7 @@
       answerInput.focus();
 
       if (!filteredVocab.length) {
-        chineseText.textContent = "目前題庫是空的，請檢查 Level 或 vocab.json。";
+        chineseText.textContent = "目前題庫是空的，請檢查 Level 或 JSON 檔。";
         levelTag.textContent = "Level ?";
         return;
       }
