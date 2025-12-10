@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>英 ➜ 中 測驗</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+    .app {
+      width: min(800px, 100%);
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 8px 22px rgba(0,0,0,.15);
+      padding: 24px 40px 32px;
+    }
+    .top {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+    .top h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .meta {
+      margin-top: 6px;
+      color: #4b5563;
+      font-size: 14px;
+    }
+    .controls {
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    .controls select, .controls button {
+      margin: 0 4px;
+      padding: 4px 8px;
+      font-size: 14px;
+    }
+    .word {
+      text-align: center;
+      font-size: 40px;
+      font-weight: 600;
+      margin: 26px 0 18px;
+    }
+    .options {
+      max-width: 640px;
+      margin: 0 auto 16px;
+    }
+    .option-btn {
+      width: 100%;
+      padding: 12px 16px;
+      margin: 8px 0;
+      font-size: 18px;
+      text-align: center;
+      background: #f9fafb;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      cursor: pointer;
+      transition: background .1s, transform .05s, box-shadow .05s, border-color .1s;
+    }
+    .option-btn:hover {
+      background: #eef2ff;
+    }
+    .option-btn.correct {
+      background: #dcfce7;
+      border-color: #16a34a;
+    }
+    .option-btn.wrong {
+      background: #fee2e2;
+      border-color: #b91c1c;
+    }
+    .sentence {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 14px;
+      margin-top: 8px;
+      min-height: 20px;
+    }
+    .bottom-row {
+      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+    .bottom-row button {
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .msg {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 15px;
+      min-height: 22px;
+    }
+    .msg.ok { color: #16a34a; }
+    .msg.bad { color: #b91c1c; }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="top">
+    <h1>英 ➜ 中 測驗</h1>
+    <div class="meta">
+      <span id="levelInfo">Level ?</span>　
+      <span id="progress">第 0 / 0 題</span>
+    </div>
+    <div class="controls">
+      Level：
+      <select id="levelSelect"></select>
+      題數：
+      <select id="countSelect">
+        <option value="5">5 題</option>
+        <option value="10">10 題</option>
+        <option value="20">20 題</option>
+        <option value="50">50 題</option>
+        <option value="ALL">全部</option>
+      </select>
+      <button id="startBtn">開始測驗</button>
+    </div>
+  </div>
+
+  <div class="word" id="word">（請先選 Level 並按開始）</div>
+
+  <div class="options" id="options">
+    <!-- 選項按鈕會由 JS 動態產生 -->
+  </div>
+
+  <div class="sentence" id="sentence">
+    <!-- 如果未來 JSON 有例句，可以放這裡，現在先留空 -->
+  </div>
+
+  <div class="bottom-row">
+    <button id="speakBtn">🔊 發音</button>
+    <button id="showAnsBtn">看答案</button>
+    <button id="nextBtn">下一題</button>
+  </div>
+
+  <div class="msg" id="msg"></div>
+</div>
+
+<script>
+  let allVocab = [];
+  let currentQuiz = [];
+  let currentIndex = 0;
+  let currentCorrect = null;
+  let answered = false;
+
+  const levelSelect = document.getElementById("levelSelect");
+  const countSelect = document.getElementById("countSelect");
+  const startBtn = document.getElementById("startBtn");
+  const wordEl = document.getElementById("word");
+  const optionsEl = document.getElementById("options");
+  const levelInfoEl = document.getElementById("levelInfo");
+  const progressEl = document.getElementById("progress");
+  const msgEl = document.getElementById("msg");
+
+  async function loadVocab() {
+    const res = await fetch("vocab_ceec_1_6.json");
+    allVocab = await res.json();
+
+    // 建 Level 選單
+    const levels = [...new Set(allVocab.map(v => v.level))];
+    levelSelect.innerHTML = levels.map(l => `<option value="${l}">${l}</option>`).join("");
+  }
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+
+  function startQuiz() {
+    const lv = levelSelect.value;
+    let pool = allVocab.filter(v => v.level === lv);
+
+    if (pool.length < 2) {
+      alert("這個 Level 單字太少，沒辦法出題。");
+      return;
+    }
+
+    shuffle(pool);
+
+    const countVal = countSelect.value;
+    const n = (countVal === "ALL") ? pool.length
+                                   : Math.min(pool.length, parseInt(countVal, 10));
+
+    currentQuiz = pool.slice(0, n);
+    currentIndex = 0;
+
+    levelInfoEl.textContent = lv;
+    showQuestion();
+  }
+
+  function buildOptions(correctItem, pool) {
+    const options = [correctItem];
+
+    // 從同一 pool 抽其他三個干擾選項
+    const others = pool.filter(v => v !== correctItem);
+    shuffle(others);
+    while (options.length < 4 && others.length > 0) {
+      options.push(others.pop());
+    }
+
+    shuffle(options);
+    return options;
+  }
+
+  function showQuestion() {
+    answered = false;
+    msgEl.textContent = "";
+    msgEl.className = "msg";
+
+    if (currentIndex >= currentQuiz.length) {
+      wordEl.textContent = "測驗結束 🎉";
+      optionsEl.innerHTML = "";
+      progressEl.textContent = `第 ${currentQuiz.length} / ${currentQuiz.length} 題`;
+      return;
+    }
+
+    const item = currentQuiz[currentIndex];
+    currentCorrect = item;
+    wordEl.textContent = item.word;
+    progressEl.textContent = `第 ${currentIndex + 1} / ${currentQuiz.length} 題`;
+
+    // 產生四個選項
+    const opts = buildOptions(item, currentQuiz);
+    optionsEl.innerHTML = "";
+    opts.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.textContent = opt.definition;
+      btn.onclick = () => chooseOption(btn, opt);
+      optionsEl.appendChild(btn);
+    });
+  }
+
+  function chooseOption(btn, chosenItem) {
+    if (answered) return;
+    answered = true;
+
+    const buttons = Array.from(document.querySelectorAll(".option-btn"));
+    buttons.forEach(b => b.disabled = true);
+
+    // 標記正確答案
+    buttons.forEach(b => {
+      if (b.textContent === currentCorrect.definition) {
+        b.classList.add("correct");
+      }
+    });
+
+    if (chosenItem === currentCorrect) {
+      msgEl.textContent = "✔ 答對了！";
+      msgEl.classList.add("ok");
+    } else {
+      msgEl.textContent = `✘ 答錯了，正確答案是：「${currentCorrect.definition}」`;
+      msgEl.classList.add("bad");
+      btn.classList.add("wrong");
+    }
+  }
+
+  function showAnswer() {
+    const buttons = Array.from(document.querySelectorAll(".option-btn"));
+    buttons.forEach(b => {
+      if (b.textContent === currentCorrect.definition) {
+        b.classList.add("correct");
+      }
+    });
+    msgEl.textContent = `正確答案是：「${currentCorrect.definition}」`;
+    msgEl.className = "msg ok";
+    answered = true;
+  }
+
+  function speakWord() {
+    if (!currentCorrect) return;
+    const utter = new SpeechSynthesisUtterance(currentCorrect.word);
+    utter.lang = "en-US";
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utter);
+  }
+
+  // 綁定事件
+  startBtn.onclick = startQuiz;
+  document.getElementById("nextBtn").onclick = () => {
+    currentIndex++;
+    showQuestion();
+  };
+  document.getElementById("showAnsBtn").onclick = showAnswer;
+  document.getElementById("speakBtn").onclick = speakWord;
+
+  loadVocab();
+</script>
+
+</body>
+</html>
