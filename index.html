@@ -283,9 +283,8 @@
   </div>
 
   <script>
-    // ========= 資料結構 =========
-    let allVocab = [];        // 全部單字
-    let filteredVocab = [];   // 依照選定 Level 過濾後的題庫
+    let allVocab = [];
+    let filteredVocab = [];
     let currentIndex = 0;
     let totalAsked = 0;
     let correctCount = 0;
@@ -308,16 +307,13 @@
     const showAnswerBtn = document.getElementById("showAnswerBtn");
     const feedbackEl = document.getElementById("feedback");
 
-    // ========= 工具函式 =========
-
     function normalizeString(s) {
       return (s || "")
         .trim()
-        .toLowerCase()
+        .lowerCase?.() ?? (s || "").trim().toLowerCase()
         .replace(/\s+/g, " ");
     }
 
-    // 從 vocab_ceec_1_6.json 讀資料
     async function loadVocab() {
       try {
         const res = await fetch("vocab_ceec_1_6.json");
@@ -333,14 +329,12 @@
         applyLevelFilter();
         updateStats();
         showNextQuestion();
-
       } catch (err) {
         console.error(err);
         chineseText.textContent = "無法載入 vocab_ceec_1_6.json，請檢查檔案路徑與格式。";
       }
     }
 
-    // 依照資料中的 level 欄位建立 Level 下拉選單
     function buildLevelOptions() {
       const levelSet = new Set();
 
@@ -352,15 +346,12 @@
 
       levelSelect.innerHTML = "";
 
-      // 先加「全部」
       const optAll = document.createElement("option");
       optAll.value = "ALL";
       optAll.textContent = "全部 Level";
       levelSelect.appendChild(optAll);
 
       const levelArr = Array.from(levelSet);
-
-      // 盡量以數字排序（Level 1, Level 2, Level 3…）
       levelArr.sort((a, b) => {
         const na = parseInt(String(a).replace(/\D/g, "")) || 0;
         const nb = parseInt(String(b).replace(/\D/g, "")) || 0;
@@ -375,7 +366,6 @@
         levelSelect.appendChild(opt);
       });
 
-      // 如果有 Level 3，預設選 Level 3，否則就選全部
       const hasLevel3 = levelArr.some(lv => /3/.test(String(lv)));
       if (hasLevel3) {
         levelSelect.value = levelArr.find(lv => /3/.test(String(lv)));
@@ -384,7 +374,6 @@
       }
 
       levelSelect.addEventListener("change", () => {
-        // 切換 Level 時，重置統計並重新出題
         totalAsked = 0;
         correctCount = 0;
         wrongCount = 0;
@@ -394,7 +383,6 @@
       });
     }
 
-    // 依照目前選定的 Level 過濾題庫
     function applyLevelFilter() {
       const selected = levelSelect.value;
       if (selected === "ALL") {
@@ -411,7 +399,6 @@
         chineseText.textContent = "這個 Level 沒有單字，請換一個 Level。";
       }
 
-      // 打亂順序
       shuffleArray(filteredVocab);
 
       poolInfo.textContent = filteredVocab.length
@@ -419,7 +406,6 @@
         : "";
     }
 
-    // 洗牌
     function shuffleArray(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -427,7 +413,6 @@
       }
     }
 
-    // 顯示下一題
     function showNextQuestion() {
       feedbackEl.textContent = "";
       feedbackEl.className = "answer-row";
@@ -441,7 +426,6 @@
       }
 
       if (currentIndex >= filteredVocab.length) {
-        // 到尾巴了就重新洗牌
         shuffleArray(filteredVocab);
         currentIndex = 0;
       }
@@ -450,11 +434,13 @@
       currentIndex++;
 
       const cn =
+        currentItem.definition ||   // ← 中文在這裡！
         currentItem.chinese ||
         currentItem.meaning ||
         currentItem.cn ||
         currentItem.translation ||
         "(找不到中文欄位)";
+
       const lv =
         currentItem.level ||
         currentItem.Level ||
@@ -468,7 +454,6 @@
       counterEl.textContent = `題目：${totalAsked + 1} / ${filteredVocab.length}`;
     }
 
-    // 檢查答案
     function checkAnswer() {
       if (!currentItem) return;
 
@@ -521,7 +506,6 @@
       feedbackEl.className = "answer-row";
     }
 
-    // ========= 事件綁定 =========
     checkBtn.addEventListener("click", checkAnswer);
     nextBtn.addEventListener("click", () => {
       showNextQuestion();
@@ -535,7 +519,6 @@
       }
     });
 
-    // ========= 啟動 =========
     loadVocab();
   </script>
 </body>
