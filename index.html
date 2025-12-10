@@ -320,7 +320,7 @@
     // 從 vocab.json 讀資料
     async function loadVocab() {
       try {
-        const res = await fetch("vocab.json");
+        const res = await fetch("vocab_ceec_1_6.json");
         const data = await res.json();
         allVocab = Array.isArray(data) ? data : [];
 
