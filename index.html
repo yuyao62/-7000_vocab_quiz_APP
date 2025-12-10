@@ -1,388 +1,540 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
   <title>Vocabulary Trainer Web</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <style>
-    body {
+    * {
+      box-sizing: border-box;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f4f5fb;
+    }
+
+    body {
       margin: 0;
       padding: 0;
+      background: #eef1f7;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
+      align-items: center;
       min-height: 100vh;
     }
-    .container {
+
+    .app {
       background: #ffffff;
+      width: min(480px, 100%);
       margin: 24px;
-      padding: 24px 20px 28px;
-      border-radius: 16px;
-      max-width: 480px;
-      width: 100%;
-      box-shadow: 0 12px 35px rgba(15, 23, 42, 0.12);
+      border-radius: 24px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+      padding: 28px 28px 20px;
     }
+
     h1 {
-      font-size: 1.6rem;
-      margin-top: 0;
-      margin-bottom: 8px;
+      margin: 0 0 4px;
+      font-size: 24px;
+      font-weight: 700;
       text-align: center;
     }
+
     .subtitle {
       text-align: center;
-      font-size: 0.85rem;
       color: #64748b;
       margin-bottom: 18px;
+      font-size: 14px;
     }
-    .stats {
+
+    .top-row {
       display: flex;
       justify-content: space-between;
-      font-size: 0.9rem;
-      margin-bottom: 12px;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 13px;
       color: #475569;
     }
+
+    .stats {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+    }
+
     .badge {
-      display: inline-block;
       padding: 2px 8px;
       border-radius: 999px;
-      font-size: 0.75rem;
-      background: #e2e8f0;
-      color: #475569;
-      margin-left: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
+
+    .badge-green {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .badge-red {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .badge-gray {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .level-select {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    select {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #cbd5f5;
+      font-size: 13px;
+      background: #f8fafc;
+      outline: none;
+    }
+
     .card {
       background: #f8fafc;
-      border-radius: 12px;
-      padding: 14px 12px;
-      margin-bottom: 10px;
+      border-radius: 16px;
+      padding: 14px 14px 10px;
+      margin-bottom: 18px;
     }
+
     .label {
-      font-size: 0.8rem;
+      font-size: 13px;
       color: #64748b;
       margin-bottom: 4px;
     }
-    .question-text {
-      font-size: 1.05rem;
+
+    .chinese {
+      font-size: 18px;
       font-weight: 600;
+      margin-bottom: 6px;
       color: #0f172a;
     }
+
     .level-tag {
-      font-size: 0.75rem;
-      color: #0f172a;
-      background: #e0f2fe;
-      border-radius: 999px;
-      padding: 2px 8px;
       display: inline-block;
-      margin-top: 6px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 12px;
+      font-weight: 600;
     }
+
+    .input-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
     input[type="text"] {
       width: 100%;
       padding: 10px 12px;
-      margin-top: 4px;
-      border-radius: 10px;
+      border-radius: 999px;
       border: 1px solid #cbd5f5;
-      font-size: 1rem;
-      box-sizing: border-box;
       outline: none;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      font-size: 15px;
     }
+
     input[type="text"]:focus {
       border-color: #4f46e5;
-      box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.2);
+      box-shadow: 0 0 0 1px #6366f133;
     }
+
     .btn-row {
       display: flex;
-      gap: 8px;
-      margin-top: 10px;
+      gap: 10px;
+      margin-bottom: 6px;
     }
+
     button {
       flex: 1;
-      padding: 9px 12px;
+      padding: 9px 10px;
       border-radius: 999px;
       border: none;
-      font-size: 0.95rem;
+      font-size: 15px;
+      font-weight: 600;
       cursor: pointer;
-      transition: transform 0.06s ease, box-shadow 0.06s ease, background 0.15s ease;
+      transition: transform 0.05s ease, box-shadow 0.05s ease, opacity 0.1s;
     }
+
+    .btn-primary {
+      background: #4f46e5;
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(79, 70, 229, 0.35);
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+
     button:active {
       transform: translateY(1px);
       box-shadow: none;
     }
-    .btn-primary {
-      background: #4f46e5;
-      color: white;
-      box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
     }
-    .btn-secondary {
-      background: #e2e8f0;
-      color: #111827;
-    }
-    .btn-small {
-      flex: 0;
-      padding: 6px 10px;
-      font-size: 0.8rem;
-    }
-    .result {
-      margin-top: 8px;
-      font-size: 0.9rem;
-    }
-    .result.correct {
-      color: #16a34a;
-    }
-    .result.wrong {
-      color: #dc2626;
-    }
-    .answer {
-      margin-top: 2px;
-      font-size: 0.9rem;
-      color: #334155;
-    }
-    .wrong-list {
-      margin-top: 16px;
-      font-size: 0.85rem;
-      max-height: 180px;
-      overflow-y: auto;
-      border-top: 1px dashed #e2e8f0;
-      padding-top: 8px;
-    }
-    .wrong-item {
+
+    .answer-row {
+      font-size: 14px;
       margin-bottom: 4px;
-      color: #475569;
+      min-height: 20px;
     }
-    .wrong-item span.word {
-      font-weight: 600;
-      color: #0f172a;
+
+    .answer-ok {
+      color: #15803d;
     }
-    .footer {
-      margin-top: 16px;
-      font-size: 0.75rem;
-      text-align: center;
+
+    .answer-wrong {
+      color: #b91c1c;
+    }
+
+    .tip {
+      font-size: 12px;
       color: #94a3b8;
+      text-align: center;
+      border-top: 1px dashed #e2e8f0;
+      padding-top: 6px;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 480px) {
+      .app {
+        margin: 16px;
+        padding: 22px 18px 16px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="app">
     <h1>Vocabulary Trainer</h1>
     <div class="subtitle">中文 ➜ 請輸入英文單字</div>
 
-    <div class="stats">
-      <div>題目：<span id="qIndex">0</span> / <span id="qTotal">0</span></div>
-      <div>
-        ✅ <span id="correctCount">0</span>
-        &nbsp;&nbsp;❌ <span id="wrongCount">0</span>
-        <span class="badge" id="accuracyBadge">0%</span>
+    <div class="top-row">
+      <div id="counter">題目：0 / 0</div>
+      <div class="stats">
+        <span class="badge badge-green" id="correctBadge">✅ 0</span>
+        <span class="badge badge-red" id="wrongBadge">❌ 0</span>
+        <span class="badge badge-gray" id="accuracyBadge">0%</span>
       </div>
     </div>
 
+    <!-- Level 選擇 -->
+    <div class="top-row" style="margin-bottom: 10px;">
+      <div class="level-select">
+        <span>出題 Level：</span>
+        <select id="levelSelect">
+          <!-- 這裡會由 JS 動態填入 -->
+        </select>
+      </div>
+      <span style="font-size: 12px; color:#94a3b8;" id="poolInfo"></span>
+    </div>
+
+    <!-- 題目卡片 -->
     <div class="card">
       <div class="label">中文 / 解釋</div>
-      <div class="question-text" id="questionText">載入中...</div>
-      <div class="level-tag" id="levelTag" style="display:none;"></div>
+      <div class="chinese" id="chineseText">載入中…</div>
+      <div class="level-tag" id="levelTag">Level ?</div>
     </div>
 
-    <div class="card">
-      <div class="label">
-        請輸入英文單字
-        <button class="btn-small btn-secondary" id="toggleMaskBtn" type="button">顯示答案</button>
+    <!-- 作答區 -->
+    <div class="input-row">
+      <div style="display:flex; justify-content: space-between; align-items:center;">
+        <span class="label">請輸入英文單字</span>
+        <button id="showAnswerBtn" class="btn-secondary" style="flex:none; padding:4px 10px; font-size:12px;">
+          顯示答案
+        </button>
       </div>
-      <input type="text" id="answerInput" placeholder="在這裡輸入英文，Enter 或按『檢查』" autocomplete="off" />
-      <div class="btn-row">
-        <button class="btn-primary" id="checkBtn" type="button">檢查答案</button>
-        <button class="btn-secondary" id="nextBtn" type="button">下一題</button>
-      </div>
-      <div class="result" id="resultArea"></div>
-      <div class="answer" id="answerArea"></div>
+      <input
+        type="text"
+        id="answerInput"
+        placeholder="在這裡輸入英文，Enter 或按『檢查』"
+        autocomplete="off"
+      />
     </div>
 
-    <div class="wrong-list" id="wrongList"></div>
+    <div class="btn-row">
+      <button id="checkBtn" class="btn-primary">檢查答案</button>
+      <button id="nextBtn" class="btn-secondary">下一題</button>
+    </div>
 
-    <div class="footer">
-      Tip：按 Enter 也可以快速送出答案
+    <div class="answer-row" id="feedback"></div>
+
+    <div class="tip">
+      Tip：按 Enter 也可以快速送出答案；右上角可以切換出題 Level。
     </div>
   </div>
 
   <script>
-    // ==== 設定：根據你的 vocab.json 欄位名稱調整 ====
-    // 假設 vocab.json 是 [{ "word": "apple", "definition": "蘋果", "level": "Level 1" }, ...]
-    const FIELD_WORD = "word";
-    const FIELD_DEF = "definition";
-    const FIELD_LEVEL = "level"; // 如果沒有 level，可以忽略
-
-    let vocabList = [];
-    let currentIndex = -1;
-    let currentItem = null;
-    let askedCount = 0;
+    // ========= 資料結構 =========
+    let allVocab = [];        // 全部單字
+    let filteredVocab = [];   // 依照選定 Level 過濾後的題庫
+    let currentIndex = 0;
+    let totalAsked = 0;
     let correctCount = 0;
     let wrongCount = 0;
-    let wrongItems = [];
-    let showMask = false;
+    let currentItem = null;
 
-    const qIndexSpan = document.getElementById("qIndex");
-    const qTotalSpan = document.getElementById("qTotal");
-    const correctSpan = document.getElementById("correctCount");
-    const wrongSpan = document.getElementById("wrongCount");
+    const counterEl = document.getElementById("counter");
+    const correctBadge = document.getElementById("correctBadge");
+    const wrongBadge = document.getElementById("wrongBadge");
     const accuracyBadge = document.getElementById("accuracyBadge");
+    const poolInfo = document.getElementById("poolInfo");
 
-    const questionText = document.getElementById("questionText");
+    const chineseText = document.getElementById("chineseText");
     const levelTag = document.getElementById("levelTag");
+    const levelSelect = document.getElementById("levelSelect");
+
     const answerInput = document.getElementById("answerInput");
-    const resultArea = document.getElementById("resultArea");
-    const answerArea = document.getElementById("answerArea");
-    const wrongListDiv = document.getElementById("wrongList");
-    const toggleMaskBtn = document.getElementById("toggleMaskBtn");
     const checkBtn = document.getElementById("checkBtn");
     const nextBtn = document.getElementById("nextBtn");
+    const showAnswerBtn = document.getElementById("showAnswerBtn");
+    const feedbackEl = document.getElementById("feedback");
 
+    // ========= 工具函式 =========
+
+    function normalizeString(s) {
+      return (s || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, " ");
+    }
+
+    // 從 vocab.json 讀資料
     async function loadVocab() {
       try {
-        const resp = await fetch("vocab.json");
-        if (!resp.ok) throw new Error("讀取 vocab.json 失敗");
-        const data = await resp.json();
+        const res = await fetch("vocab.json");
+        const data = await res.json();
+        allVocab = Array.isArray(data) ? data : [];
 
-        // 基本防呆：確保是陣列
-        if (!Array.isArray(data) || data.length === 0) {
-          questionText.textContent = "vocab.json 內容為空或格式錯誤。";
+        if (allVocab.length === 0) {
+          chineseText.textContent = "vocab.json 內容是空的";
           return;
         }
 
-        vocabList = data;
-        qTotalSpan.textContent = vocabList.length.toString();
-        nextQuestion();
+        buildLevelOptions();
+        applyLevelFilter();
+        updateStats();
+        showNextQuestion();
+
       } catch (err) {
         console.error(err);
-        questionText.textContent = "無法載入 vocab.json，請檢查檔案路徑與格式。";
+        chineseText.textContent = "無法讀取 vocab.json，請確認檔案存在且格式正確。";
       }
     }
 
-    function pickRandomIndex() {
-      if (vocabList.length === 0) return -1;
-      return Math.floor(Math.random() * vocabList.length);
-    }
+    // 依照資料中的 level 欄位建立 Level 下拉選單
+    function buildLevelOptions() {
+      const levelSet = new Set();
 
-    function updateStats() {
-      qIndexSpan.textContent = askedCount.toString();
-      correctSpan.textContent = correctCount.toString();
-      wrongSpan.textContent = wrongCount.toString();
+      allVocab.forEach(item => {
+        const lv =
+          item.level || item.Level || item.level_name || item.levelName || null;
+        if (lv) levelSet.add(String(lv));
+      });
 
-      const totalAnswered = correctCount + wrongCount;
-      const acc = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
-      accuracyBadge.textContent = acc + "%";
-    }
+      // 先加「全部」
+      levelSelect.innerHTML = "";
+      const optAll = document.createElement("option");
+      optAll.value = "ALL";
+      optAll.textContent = "全部 Level";
+      levelSelect.appendChild(optAll);
 
-    function renderWrongList() {
-      if (wrongItems.length === 0) {
-        wrongListDiv.textContent = "目前沒有錯題 👌";
-        return;
+      const levelArr = Array.from(levelSet);
+
+      // 盡量以數字排序（例如 Level 1, Level 2, Level 3…）
+      levelArr.sort((a, b) => {
+        const na = parseInt(String(a).replace(/\D/g, "")) || 0;
+        const nb = parseInt(String(b).replace(/\D/g, "")) || 0;
+        if (na === 0 && nb === 0) return String(a).localeCompare(String(b));
+        return na - nb;
+      });
+
+      levelArr.forEach(lv => {
+        const opt = document.createElement("option");
+        opt.value = lv;
+        opt.textContent = lv;
+        levelSelect.appendChild(opt);
+      });
+
+      // 如果有 Level 3，預設選 Level 3，否則就選全部
+      const hasLevel3 = levelArr.some(lv => /3/.test(String(lv)));
+      if (hasLevel3) {
+        levelSelect.value = levelArr.find(lv => /3/.test(String(lv)));
+      } else {
+        levelSelect.value = "ALL";
       }
-      wrongListDiv.innerHTML = "<strong>錯題記錄：</strong><br/>";
-      wrongItems.forEach((item, idx) => {
-        const div = document.createElement("div");
-        div.className = "wrong-item";
-        div.innerHTML =
-          (idx + 1) +
-          ". <span class='word'>" +
-          item[FIELD_WORD] +
-          "</span> — " +
-          (item[FIELD_DEF] || "") +
-          (item[FIELD_LEVEL] ? " (" + item[FIELD_LEVEL] + ")" : "");
-        wrongListDiv.appendChild(div);
+
+      levelSelect.addEventListener("change", () => {
+        // 切換 Level 時，重置統計並重新出題
+        totalAsked = 0;
+        correctCount = 0;
+        wrongCount = 0;
+        updateStats();
+        applyLevelFilter();
+        showNextQuestion();
       });
     }
 
-    function nextQuestion() {
-      if (!vocabList || vocabList.length === 0) return;
-
-      currentIndex = pickRandomIndex();
-      currentItem = vocabList[currentIndex];
-
-      const defText = currentItem[FIELD_DEF] || "(無解釋)";
-      questionText.textContent = defText;
-
-      const level = currentItem[FIELD_LEVEL];
-      if (level) {
-        levelTag.style.display = "inline-block";
-        levelTag.textContent = level;
+    // 依照目前選定的 Level 過濾題庫
+    function applyLevelFilter() {
+      const selected = levelSelect.value;
+      if (selected === "ALL") {
+        filteredVocab = [...allVocab];
       } else {
-        levelTag.style.display = "none";
+        filteredVocab = allVocab.filter(item => {
+          const lv =
+            item.level || item.Level || item.level_name || item.levelName || "";
+          return String(lv) === selected;
+        });
       }
 
-      answerInput.value = "";
-      answerInput.focus();
-      resultArea.textContent = "";
-      resultArea.className = "result";
-      answerArea.textContent = "";
-      showMask = false;
-      toggleMaskBtn.textContent = "顯示答案";
+      if (filteredVocab.length === 0) {
+        chineseText.textContent = "這個 Level 沒有單字，請換一個 Level。";
+      }
 
-      askedCount += 1;
-      updateStats();
+      // 打亂順序
+      shuffleArray(filteredVocab);
+
+      poolInfo.textContent = filteredVocab.length
+        ? `題庫：${filteredVocab.length} 字`
+        : "";
     }
 
+    // 洗牌
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    // 顯示下一題
+    function showNextQuestion() {
+      feedbackEl.textContent = "";
+      feedbackEl.className = "answer-row";
+      answerInput.value = "";
+      answerInput.focus();
+
+      if (!filteredVocab.length) {
+        chineseText.textContent = "目前題庫是空的，請檢查 Level 或 vocab.json。";
+        levelTag.textContent = "Level ?";
+        return;
+      }
+
+      if (currentIndex >= filteredVocab.length) {
+        // 到尾巴了就重新洗牌
+        shuffleArray(filteredVocab);
+        currentIndex = 0;
+      }
+
+      currentItem = filteredVocab[currentIndex];
+      currentIndex++;
+
+      const cn =
+        currentItem.chinese ||
+        currentItem.meaning ||
+        currentItem.cn ||
+        currentItem.translation ||
+        "(找不到中文欄位)";
+      const lv =
+        currentItem.level ||
+        currentItem.Level ||
+        currentItem.level_name ||
+        currentItem.levelName ||
+        "未標記 Level";
+
+      chineseText.textContent = cn;
+      levelTag.textContent = lv;
+
+      counterEl.textContent = `題目：${totalAsked + 1} / ${filteredVocab.length}`;
+    }
+
+    // 檢查答案
     function checkAnswer() {
       if (!currentItem) return;
 
-      const userAns = answerInput.value.trim();
-      const trueAns = (currentItem[FIELD_WORD] || "").trim();
+      const userAns = normalizeString(answerInput.value);
+      const correct =
+        normalizeString(
+          currentItem.word ||
+            currentItem.english ||
+            currentItem.en ||
+            currentItem.term
+        );
 
-      if (!trueAns) {
-        resultArea.textContent = "此單字在 vocab.json 中沒有 word 欄位。";
-        resultArea.className = "result wrong";
+      if (!correct) {
+        feedbackEl.textContent = "此題單字資料缺少英文欄位。";
+        feedbackEl.className = "answer-row answer-wrong";
         return;
       }
 
-      if (!userAns) {
-        resultArea.textContent = "請先輸入答案再檢查～";
-        resultArea.className = "result wrong";
-        return;
-      }
-
-      const isCorrect = userAns.toLowerCase() === trueAns.toLowerCase();
-
-      if (isCorrect) {
-        resultArea.textContent = "✅ 答對了！";
-        resultArea.className = "result correct";
-        correctCount += 1;
+      totalAsked++;
+      if (userAns && userAns === correct) {
+        correctCount++;
+        feedbackEl.textContent = `✅ 正確！答案：${correct}`;
+        feedbackEl.className = "answer-row answer-ok";
       } else {
-        resultArea.textContent = "❌ 再試試看～";
-        resultArea.className = "result wrong";
-        wrongCount += 1;
-
-        // 加入錯題（避免重複記錄同一題）
-        if (!wrongItems.includes(currentItem)) {
-          wrongItems.push(currentItem);
-        }
-        renderWrongList();
+        wrongCount++;
+        feedbackEl.textContent = `❌ 答錯了，正確答案是：${correct}`;
+        feedbackEl.className = "answer-row answer-wrong";
       }
 
-      answerArea.textContent = "正確答案： " + trueAns;
       updateStats();
     }
 
-    function toggleMask() {
-      if (!currentItem) return;
-      showMask = !showMask;
-      if (showMask) {
-        answerArea.textContent = "正確答案： " + (currentItem[FIELD_WORD] || "");
-        toggleMaskBtn.textContent = "隱藏答案";
-      } else {
-        answerArea.textContent = "";
-        toggleMaskBtn.textContent = "顯示答案";
-      }
+    function updateStats() {
+      correctBadge.textContent = `✅ ${correctCount}`;
+      wrongBadge.textContent = `❌ ${wrongCount}`;
+      const total = correctCount + wrongCount;
+      const acc = total === 0 ? 0 : Math.round((correctCount / total) * 100);
+      accuracyBadge.textContent = `${acc}%`;
     }
 
-    checkBtn.addEventListener("click", checkAnswer);
-    nextBtn.addEventListener("click", nextQuestion);
-    toggleMaskBtn.addEventListener("click", toggleMask);
+    function showAnswer() {
+      if (!currentItem) return;
+      const correct =
+        currentItem.word ||
+        currentItem.english ||
+        currentItem.en ||
+        currentItem.term ||
+        "(沒有英文欄位)";
+      feedbackEl.textContent = `👉 答案是：${correct}`;
+      feedbackEl.className = "answer-row";
+    }
 
-    answerInput.addEventListener("keydown", function (e) {
+    // ========= 事件綁定 =========
+    checkBtn.addEventListener("click", checkAnswer);
+    nextBtn.addEventListener("click", () => {
+      showNextQuestion();
+    });
+    showAnswerBtn.addEventListener("click", showAnswer);
+
+    answerInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
+        e.preventDefault();
         checkAnswer();
       }
     });
 
+    // ========= 啟動 =========
     loadVocab();
   </script>
 </body>
