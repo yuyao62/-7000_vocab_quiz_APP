@@ -6,717 +6,195 @@
   <title>Vocabulary Trainer</title>
   <style>
     :root{
-      --bg:#eef1f7;
-      --card:#ffffff;
-      --muted:#6b7280;
-      --text:#111827;
-      --primary:#4f46e5;
-      --primary2:#4338ca;
-      --soft:#f3f4f6;
-      --soft2:#e5e7eb;
-      --ok:#16a34a;
-      --bad:#ef4444;
-      --shadow: 0 18px 40px rgba(17,24,39,.12);
+      --bg:#eef1f7;--card:#ffffff;--muted:#6b7280;--text:#111827;
+      --primary:#4f46e5;--primary2:#4338ca;
+      --soft:#f3f4f6;--soft2:#e5e7eb;
+      --ok:#16a34a;--bad:#ef4444;
+      --shadow:0 18px 40px rgba(17,24,39,.12);
       --radius:18px;
     }
     *{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
-    html,body{width:100%;max-width:100%;overflow-x:hidden;}
     body{
-      margin:0; background:var(--bg); color:var(--text);
-      display:flex; align-items:center; justify-content:center;
-      min-height:100vh; padding:20px;
+      margin:0;background:var(--bg);color:var(--text);
+      display:flex;justify-content:center;align-items:center;
+      min-height:100vh;padding:20px;
     }
-    .wrap{width:min(720px, 96vw);}
-    .card{
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:22px 22px 18px;
-    }
-    h1{
-      margin:0 0 4px; text-align:center;
-      font-size:28px; letter-spacing:.2px;
-    }
-    .sub{
-      text-align:center; color:var(--muted);
-      margin:0 0 16px; font-size:14px;
-    }
-    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
-    .tabs{margin:10px 0 14px; background:var(--soft2); border-radius:999px; padding:4px; display:flex; gap:4px;}
-    .tab{
-      flex:1; border:0; padding:10px 12px; border-radius:999px;
-      background:transparent; cursor:pointer; font-weight:700;
-      color:#374151; font-size:15px;
-    }
-    .tab.active{
-      background:var(--primary);
-      color:#fff;
-      box-shadow:0 10px 20px rgba(79,70,229,.25);
-    }
-    .meta{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px; margin:8px 0 10px;
-    }
-    .meta .left{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
-    .meta label{color:#374151; font-weight:600; font-size:14px;}
-    select, input[type="number"]{
-      border:1px solid var(--soft2);
-      border-radius:10px;
-      padding:8px 10px;
-      font-size:14px;
-      background:#fff;
-    }
-    .pill{
-      display:flex; align-items:center; gap:8px;
-      font-weight:800; font-size:14px;
-    }
-    .badge{
-      padding:4px 10px; border-radius:999px; background:var(--soft);
-      font-weight:800; min-width:44px; text-align:center;
-    }
-    .badge.ok{background:#dcfce7; color:var(--ok);}
-    .badge.bad{background:#fee2e2; color:var(--bad);}
-    .badge.rate{background:#e0e7ff; color:var(--primary2);}
-    .box{
-      background:#f8fafc;
-      border:1px solid var(--soft2);
-      border-radius:16px;
-      padding:14px 14px;
-      margin:10px 0 12px;
-      min-height:96px;
-    }
-    .box .label{color:#374151; font-weight:800; margin-bottom:6px;}
-    .prompt{
-      font-size:18px; font-weight:800; line-height:1.35;
-      white-space:pre-wrap;
-    }
-    .leveltag{
-      display:inline-block; margin-top:10px;
-      background:#dbeafe; color:#1d4ed8;
-      padding:4px 10px; border-radius:999px;
-      font-weight:900; font-size:13px;
-    }
+    .wrap{width:min(720px,96vw);}
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;}
+    h1{text-align:center;margin:0 0 4px;font-size:28px;}
+    .sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:16px;}
+    .tabs{display:flex;gap:4px;background:var(--soft2);padding:4px;border-radius:999px;margin-bottom:14px;}
+    .tab{flex:1;border:0;padding:10px;border-radius:999px;font-weight:700;cursor:pointer;}
+    .tab.active{background:var(--primary);color:#fff;}
+    .meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+    .pill{display:flex;gap:8px;font-weight:800;font-size:14px;}
+    .badge{padding:4px 10px;border-radius:999px;background:var(--soft);}
+    .badge.ok{background:#dcfce7;color:var(--ok);}
+    .badge.bad{background:#fee2e2;color:var(--bad);}
+    .badge.rate{background:#e0e7ff;color:var(--primary2);}
+    select,input{padding:8px 10px;border-radius:10px;border:1px solid var(--soft2);}
+    .btn{padding:10px 14px;border-radius:999px;border:0;cursor:pointer;font-weight:900;}
+    .btn.primary{background:var(--primary);color:#fff;}
+    .btn.ghost{background:transparent;border:1px solid var(--soft2);}
+    .box{background:#f8fafc;border:1px solid var(--soft2);border-radius:16px;padding:14px;margin:12px 0;}
+    .label{font-weight:800;margin-bottom:6px;}
+    .prompt{font-size:18px;font-weight:800;}
     .answerArea{margin-top:12px;}
-    .inputline{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
-    .textinput{
-      flex:1; min-width:220px;
-      border:1px solid var(--soft2); border-radius:12px;
-      padding:10px 12px; font-size:16px;
-    }
-    .btn{
-      border:0; cursor:pointer;
-      padding:10px 14px;
-      border-radius:999px;
-      font-weight:900; font-size:15px;
-      background:var(--soft2);
-      color:#111827;
-    }
-    .btn.primary{
-      background:var(--primary); color:#fff;
-      box-shadow:0 10px 20px rgba(79,70,229,.22);
-    }
-    .btn.primary:hover{background:var(--primary2);}
-    .btn.ghost{background:transparent; border:1px solid var(--soft2); color:#111827;}
-    .btn:disabled{opacity:.5; cursor:not-allowed;}
-    .choices{display:grid; gap:10px; margin-top:10px;}
-    .choice{
-      text-align:left;
-      padding:12px 12px;
-      border-radius:14px;
-      border:1px solid var(--soft2);
-      background:#fff;
-      cursor:pointer;
-      font-weight:800;
-    }
-    .choice:hover{background:#f9fafb;}
-    .choice.correct{border-color:#86efac; background:#f0fdf4;}
-    .choice.wrong{border-color:#fecaca; background:#fef2f2;}
-    .hr{height:1px;background:var(--soft2); margin:14px 0;}
-    .tip{color:var(--muted); font-size:13px; text-align:center;}
-    .small{color:var(--muted); font-size:13px;}
-    .fileRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;}
+    .choices{display:grid;gap:10px;}
+    .choice{padding:12px;border-radius:14px;border:1px solid var(--soft2);font-weight:800;cursor:pointer;}
+    .choice.correct{background:#f0fdf4;border-color:#86efac;}
+    .choice.wrong{background:#fef2f2;border-color:#fecaca;}
+    .hr{height:1px;background:var(--soft2);margin:14px 0;}
+    .small{font-size:13px;color:var(--muted);}
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Vocabulary Trainer</h1>
-      <p class="sub">— 一鍵切換：中 ➜ 英 填空 / 英 ➜ 中 四選一 —</p>
+<div class="wrap">
+<div class="card">
+<h1>Vocabulary Trainer</h1>
+<p class="sub">— 自動載入題庫（無手動上傳）—</p>
 
-      <div class="tabs">
-        <button id="tabC2E" class="tab active">中 ➜ 英 填空</button>
-        <button id="tabE2C" class="tab">英 ➜ 中 四選一</button>
-      </div>
+<div class="tabs">
+  <button id="tabC2E" class="tab active">中 ➜ 英 填空</button>
+  <button id="tabE2C" class="tab">英 ➜ 中 四選一</button>
+</div>
 
-      <div class="meta">
-        <div class="left">
-          <div class="pill">
-            <span class="small">題目：</span>
-            <span id="idxText" class="small">0 / 0</span>
-          </div>
-
-          <label>出題 Level：</label>
-          <select id="levelSelect"></select>
-
-          <label>題數：</label>
-          <select id="countSelect">
-            <option value="all">全部（最多 500）</option>
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-            <option value="custom">自訂（1-500）</option>
-          </select>
-
-          <input id="customCount" type="number" min="1" max="500" step="1" placeholder="1-500"
-                 style="display:none;width:120px;" />
-
-          <button id="btnStart" class="btn ghost">開始 / 重置</button>
-        </div>
-
-        <div class="pill">
-          <span id="okBadge" class="badge ok">0</span>
-          <span id="badBadge" class="badge bad">0</span>
-          <span id="rateBadge" class="badge rate">0%</span>
-        </div>
-      </div>
-
-      <div class="row small" style="justify-content:space-between;">
-        <div>題庫：<span id="poolSize">0</span> 字</div>
-        <div>本次測驗：<span id="sessionSize">0</span> 題</div>
-      </div>
-
-      <div class="box">
-        <div class="label" id="promptLabel">中文 / 解釋</div>
-        <div class="prompt" id="promptText">讀取題庫中…</div>
-        <div class="leveltag" id="levelTag" style="display:none;"></div>
-      </div>
-
-      <div id="c2eArea" class="answerArea">
-        <div class="row" style="justify-content:space-between;">
-          <div class="small">請輸入英文單字</div>
-          <button id="btnShowAnswer1" class="btn">顯示答案</button>
-        </div>
-        <div class="inputline">
-          <input id="textAnswer" class="textinput" placeholder="輸入英文後按 Enter 或「檢查」" />
-          <button id="btnCheck1" class="btn primary">檢查答案</button>
-          <button id="btnNext1" class="btn">下一題</button>
-        </div>
-        <div id="feedback1" class="small" style="margin-top:10px;"></div>
-      </div>
-
-      <div id="e2cArea" class="answerArea" style="display:none;">
-        <div class="row" style="justify-content:space-between;">
-          <div class="small">請從四個選項中選出正確中文/解釋</div>
-          <button id="btnShowAnswer2" class="btn">顯示答案</button>
-        </div>
-        <div class="choices" id="choices"></div>
-        <div class="row" style="margin-top:10px;">
-          <button id="btnNext2" class="btn">下一題</button>
-          <div id="feedback2" class="small"></div>
-        </div>
-      </div>
-
-      <div class="hr"></div>
-
-      <div class="fileRow">
-        <input id="fileInput" type="file" accept=".json" />
-        <button id="btnLoad" class="btn primary">手動載入題庫 JSON</button>
-        <button id="btnClearWrong" class="btn">清除錯題紀錄</button>
-      </div>
-      <div class="tip">Tip：按 Enter 可送出（填空模式）；右上可切換模式 / Level / 題數。</div>
-    </div>
+<div class="meta">
+  <div class="pill">
+    <span id="idxText">0 / 0</span>
+    <select id="levelSelect"></select>
+    <select id="countSelect">
+      <option value="all">全部</option>
+      <option value="10">10</option>
+      <option value="20">20</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+    <button id="btnStart" class="btn ghost">開始 / 重置</button>
   </div>
+  <div class="pill">
+    <span id="okBadge" class="badge ok">0</span>
+    <span id="badBadge" class="badge bad">0</span>
+    <span id="rateBadge" class="badge rate">0%</span>
+  </div>
+</div>
 
-  <script>
-    const DEFAULT_JSON = "./vocab_ceec_1_6.json";
+<div class="box">
+  <div class="label" id="promptLabel"></div>
+  <div class="prompt" id="promptText">載入中…</div>
+</div>
 
-    let vocabCache = null; // 會被統一成：{ "Level 1":[...], ..., "Level 6":[...] }
-    let mode = "C2E";
+<div id="c2eArea" class="answerArea">
+  <input id="textAnswer" placeholder="輸入英文後 Enter" />
+  <button id="btnCheck1" class="btn primary">檢查</button>
+  <button id="btnNext1" class="btn">下一題</button>
+  <div id="feedback1" class="small"></div>
+</div>
 
-    let pool = [];
-    let session = [];
-    let idx = 0;
-    let ok = 0, bad = 0;
-    let locked = false;
-    let finished = false; // ✅ 固定題數：做到最後就結束
+<div id="e2cArea" class="answerArea" style="display:none;">
+  <div id="choices" class="choices"></div>
+  <button id="btnNext2" class="btn">下一題</button>
+  <div id="feedback2" class="small"></div>
+</div>
 
-    const tabC2E = document.getElementById("tabC2E");
-    const tabE2C = document.getElementById("tabE2C");
+<div class="hr"></div>
+<button id="btnClearWrong" class="btn">清除錯題紀錄</button>
 
-    const levelSelect = document.getElementById("levelSelect");
-    const countSelect = document.getElementById("countSelect");
-    const customCount = document.getElementById("customCount");
-    const btnStart = document.getElementById("btnStart");
+</div>
+</div>
 
-    const idxText = document.getElementById("idxText");
-    const okBadge = document.getElementById("okBadge");
-    const badBadge = document.getElementById("badBadge");
-    const rateBadge = document.getElementById("rateBadge");
+<script>
+const DEFAULT_JSON = "./vocab_ceec_1_6.json";
+let vocabCache=null,session=[],pool=[],idx=0,ok=0,bad=0,mode="C2E",locked=false;
 
-    const poolSize = document.getElementById("poolSize");
-    const sessionSize = document.getElementById("sessionSize");
+const qs=id=>document.getElementById(id);
+const tabC2E=qs("tabC2E"),tabE2C=qs("tabE2C");
+const promptText=qs("promptText"),promptLabel=qs("promptLabel");
+const levelSelect=qs("levelSelect"),countSelect=qs("countSelect");
+const idxText=qs("idxText"),okBadge=qs("okBadge"),badBadge=qs("badBadge"),rateBadge=qs("rateBadge");
+const c2eArea=qs("c2eArea"),e2cArea=qs("e2cArea");
+const textAnswer=qs("textAnswer"),choices=qs("choices");
+const feedback1=qs("feedback1"),feedback2=qs("feedback2");
 
-    const promptLabel = document.getElementById("promptLabel");
-    const promptText = document.getElementById("promptText");
-    const levelTag = document.getElementById("levelTag");
-
-    const c2eArea = document.getElementById("c2eArea");
-    const e2cArea = document.getElementById("e2cArea");
-
-    const textAnswer = document.getElementById("textAnswer");
-    const btnCheck1 = document.getElementById("btnCheck1");
-    const btnNext1 = document.getElementById("btnNext1");
-    const btnShowAnswer1 = document.getElementById("btnShowAnswer1");
-    const feedback1 = document.getElementById("feedback1");
-
-    const choices = document.getElementById("choices");
-    const btnNext2 = document.getElementById("btnNext2");
-    const btnShowAnswer2 = document.getElementById("btnShowAnswer2");
-    const feedback2 = document.getElementById("feedback2");
-
-    const fileInput = document.getElementById("fileInput");
-    const btnLoad = document.getElementById("btnLoad");
-    const btnClearWrong = document.getElementById("btnClearWrong");
-
-    function normalizeItem(item){
-      if(!item || typeof item !== "object") return null;
-
-      const word = (item.word || item.Word || "").trim();
-      let defRaw = (item.definition || item.answer || item.Definition || "").trim();
-      let ipa = (item.ipa || item.IPA || "").trim();
-
-      if(!word || !defRaw) return null;
-
-      const m = defRaw.match(/^\s*\[([^\]]+)\]\s*(.*)$/);
-      if(m){
-        const ipaFromDef = `[${m[1].trim()}]`;
-        const rest = (m[2] || "").trim();
-        if(!ipa) ipa = ipaFromDef;
-        defRaw = rest;
-      }
-      const definition = defRaw.trim();
-      if(!definition) return null;
-
-      return { word, definition, ipa };
+function normalizeVocabCacheShape(raw){
+  const out={};
+  for(let i=1;i<=6;i++) out[`Level ${i}`]=[];
+  raw.forEach(x=>{
+    if(x.word && x.definition){
+      const lv=parseInt(x.level||1,10);
+      out[`Level ${lv}`].push(x);
     }
+  });
+  return out;
+}
 
-    // ✅ 這段是關鍵：把任何格式統一成 Level 1~6 的 mapping
-    function normalizeVocabCacheShape(raw){
-      // 1) 已經是 { "Level 1": [...], ... } 直接用
-      if(raw && typeof raw === "object" && !Array.isArray(raw)){
-        const keys = Object.keys(raw);
-        const hasLevelKey = keys.some(k => /^Level\s*\d+$/i.test(k));
-        if(hasLevelKey) return raw;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
 
-        // 2) 有些人會包一層 data / items
-        const maybeArr = raw.data || raw.items || raw.vocab || null;
-        if(Array.isArray(maybeArr)){
-          raw = maybeArr;
-        }else{
-          // 格式不認得，回空結構
-          return {};
-        }
-      }
+function buildSession(){
+  const lv=levelSelect.value;
+  pool=[...vocabCache[lv]];
+  shuffle(pool);
+  session=pool.slice(0,parseInt(countSelect.value)||pool.length);
+  idx=0;ok=0;bad=0;
+  render();
+}
 
-      // 3) 如果是 array：[{word,definition,level:1}, ...] → group by Level
-      if(Array.isArray(raw)){
-        const out = {};
-        for(let i=1;i<=6;i++) out[`Level ${i}`] = [];
+function render(){
+  idxText.textContent=`${idx+1} / ${session.length}`;
+  okBadge.textContent=ok;
+  badBadge.textContent=bad;
+  rateBadge.textContent=ok+bad?Math.round(ok/(ok+bad)*100)+"%":"0%";
 
-        raw.forEach(obj => {
-          const nv = normalizeItem(obj);
-          if(!nv) return;
+  const it=session[idx];
+  if(!it){promptText.textContent="結束";return;}
 
-          // 允許 level 欄位各種名字
-          const lvRaw = obj.level ?? obj.Level ?? obj.lv ?? obj.LV ?? obj.level_no ?? obj.levelNo ?? obj.LevelNo;
-          const lvNum = parseInt(lvRaw, 10);
+  if(mode==="C2E"){
+    promptLabel.textContent="中文 / 解釋";
+    promptText.textContent=it.definition;
+  }else{
+    promptLabel.textContent="英文";
+    promptText.textContent=it.word;
+    renderChoices(it);
+  }
+}
 
-          if(lvNum >= 1 && lvNum <= 6){
-            out[`Level ${lvNum}`].push(nv);
-          }else{
-            // 沒有 level 的就先丟到 Level 1（避免整個不能用）
-            out["Level 1"].push(nv);
-          }
-        });
-
-        return out;
-      }
-
-      return {};
-    }
-
-    function showWordWithIpa(word, ipa){
-      const w = (word || "").trim();
-      const i = (ipa || "").trim();
-      return (w && i) ? `${w} ${i}` : w;
-    }
-
-    function shuffle(arr){
-      for(let i=arr.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
-    function clampInt(n, min, max){
-      n = parseInt(n,10);
-      if(isNaN(n)) return min;
-      return Math.max(min, Math.min(max, n));
-    }
-
-    function updateScoreUI(){
-      okBadge.textContent = ok;
-      badBadge.textContent = bad;
-      const total = ok + bad;
-      const rate = total ? Math.round((ok/total)*100) : 0;
-      rateBadge.textContent = `${rate}%`;
-    }
-
-    function updateIndexUI(){
-      idxText.textContent = `${session.length ? (idx+1) : 0} / ${session.length}`;
-      poolSize.textContent = pool.length;
-      sessionSize.textContent = session.length;
-    }
-
-    function currentItem(){
-      if(!session.length) return null;
-      return session[idx];
-    }
-
-    function saveWrong(item){
-      const key = "vt_wrong";
-      let list = [];
-      try{ list = JSON.parse(localStorage.getItem(key) || "[]"); }catch(e){ list = []; }
-      if(!list.some(x => x && x.word === item.word)){
-        list.push({word:item.word, definition:item.definition, ipa:item.ipa || ""});
-      }
-      localStorage.setItem(key, JSON.stringify(list));
-    }
-
-    function clearWrong(){
-      localStorage.removeItem("vt_wrong");
-    }
-
-    function getDesiredCount(){
-      const v = countSelect.value;
-      const maxAllowed = Math.min(pool.length, 500);
-
-      if(v === "all") return maxAllowed;
-      if(v === "custom"){
-        const c = clampInt(customCount.value, 1, maxAllowed);
-        return c;
-      }
-      return clampInt(v, 1, maxAllowed);
-    }
-
-    function setFinishedUI(isFinished){
-      finished = isFinished;
-
-      btnNext1.disabled = finished;
-      btnNext2.disabled = finished;
-
-      textAnswer.disabled = finished;
-      btnCheck1.disabled = finished;
-
-      if(mode === "E2C"){
-        [...choices.children].forEach(b => b.disabled = finished);
-      }
-
-      if(finished){
-        const total = ok + bad;
-        const rate = total ? Math.round((ok/total)*100) : 0;
-        const msg = `🎉 測驗結束！共 ${session.length} 題，答對 ${ok} 題，正確率 ${rate}%。\n按「開始 / 重置」可重新抽題。`;
-        if(mode === "C2E") feedback1.textContent = msg;
-        else feedback2.textContent = msg;
-      }
-    }
-
-    function buildSession(){
-      if(!vocabCache){
-        alert("題庫尚未載入完成，請稍候或手動載入 JSON。");
-        return;
-      }
-
-      const lv = levelSelect.value;
-      const rawList = (vocabCache[lv] || []);
-      pool = rawList.map(normalizeItem).filter(Boolean);
-
-      const n = getDesiredCount();
-      session = shuffle([...pool]).slice(0, n);
-
-      idx = 0;
-      ok = 0;
-      bad = 0;
-      locked = false;
-
-      feedback1.textContent = "";
-      feedback2.textContent = "";
-
-      updateScoreUI();
-      updateIndexUI();
-      renderQuestion();
-      setFinishedUI(false);
-    }
-
-    function renderQuestion(){
-      updateIndexUI();
-      locked = false;
-
-      const it = currentItem();
-      if(!it){
-        promptLabel.textContent = "提示";
-        promptText.textContent = "目前沒有題目（可能該 Level 沒資料，或 JSON 格式不含 Level）。";
-        levelTag.style.display = "none";
-        choices.innerHTML = "";
-        setFinishedUI(true);
-        return;
-      }
-
-      levelTag.style.display = "inline-block";
-      levelTag.textContent = levelSelect.value;
-
-      if(mode === "C2E"){
-        promptLabel.textContent = "中文 / 解釋";
-        promptText.textContent = it.definition;
-        textAnswer.value = "";
-        textAnswer.disabled = false;
-        btnCheck1.disabled = false;
-        textAnswer.focus();
-      }else{
-        promptLabel.textContent = "英文（含音標）";
-        promptText.textContent = showWordWithIpa(it.word, it.ipa);
-        renderChoices(it);
-      }
-    }
-
-    function renderChoices(it){
-      choices.innerHTML = "";
-      feedback2.textContent = "";
-
-      const correct = it.definition;
-      const candidates = pool.map(x => x.definition).filter(d => d && d !== correct);
-      shuffle(candidates);
-      const distractors = candidates.slice(0, Math.min(3, candidates.length));
-      const opts = shuffle([correct, ...distractors]);
-
-      opts.forEach((opt) => {
-        const btn = document.createElement("button");
-        btn.className = "choice";
-        btn.textContent = opt;
-        btn.onclick = () => {
-          if(finished) return;
-          if(locked) return;
-          locked = true;
-
-          if(opt === correct){
-            btn.classList.add("correct");
-            ok++;
-            feedback2.textContent = "✅ 正確！";
-          }else{
-            btn.classList.add("wrong");
-            bad++;
-            feedback2.textContent = `❌ 錯誤，正確答案：${correct}`;
-            saveWrong(it);
-            [...choices.children].forEach(b=>{
-              if(b.textContent === correct) b.classList.add("correct");
-            });
-          }
-          updateScoreUI();
-        };
-        choices.appendChild(btn);
-      });
-    }
-
-    function setMode(next){
-      mode = next;
-      tabC2E.classList.toggle("active", mode==="C2E");
-      tabE2C.classList.toggle("active", mode==="E2C");
-      c2eArea.style.display = (mode==="C2E") ? "" : "none";
-      e2cArea.style.display = (mode==="E2C") ? "" : "none";
-      feedback1.textContent = "";
-      feedback2.textContent = "";
-      renderQuestion();
-      setFinishedUI(finished);
-    }
-
-    tabC2E.onclick = () => setMode("C2E");
-    tabE2C.onclick = () => setMode("E2C");
-
-    countSelect.onchange = () => {
-      const v = countSelect.value;
-      customCount.style.display = (v === "custom") ? "" : "none";
-      if(v === "custom" && !customCount.value) customCount.value = "100";
+function renderChoices(it){
+  choices.innerHTML="";
+  const defs=shuffle(pool.map(x=>x.definition)).slice(0,3);
+  const opts=shuffle([it.definition,...defs]);
+  opts.forEach(o=>{
+    const b=document.createElement("button");
+    b.className="choice";b.textContent=o;
+    b.onclick=()=>{
+      if(o===it.definition){b.classList.add("correct");ok++;}
+      else{b.classList.add("wrong");bad++;}
+      render();
     };
+    choices.appendChild(b);
+  });
+}
 
-    customCount.addEventListener("input", () => {
-      const v = clampInt(customCount.value, 1, 500);
-      customCount.value = String(v);
-    });
+tabC2E.onclick=()=>{mode="C2E";c2eArea.style.display="";e2cArea.style.display="none";render();}
+tabE2C.onclick=()=>{mode="E2C";c2eArea.style.display="none";e2cArea.style.display="";render();}
 
-    btnStart.onclick = () => buildSession();
+document.getElementById("btnStart").onclick=buildSession;
+document.getElementById("btnNext1").onclick=()=>{idx++;render();}
+document.getElementById("btnNext2").onclick=()=>{idx++;render();}
+document.getElementById("btnCheck1").onclick=()=>{
+  const it=session[idx];
+  if(textAnswer.value.trim().toLowerCase()===it.word.toLowerCase()) ok++; else bad++;
+  textAnswer.value=""; render();
+};
 
-    function checkC2E(){
-      if(finished) return;
-      const it = currentItem();
-      if(!it) return;
-
-      const ans = (textAnswer.value || "").trim();
-      if(!ans){
-        feedback1.textContent = "請先輸入答案";
-        return;
-      }
-
-      if(ans.toLowerCase() === it.word.toLowerCase()){
-        ok++;
-        feedback1.textContent = "✅ 正確！";
-      }else{
-        bad++;
-        feedback1.textContent = `❌ 錯誤，正確答案：${showWordWithIpa(it.word, it.ipa)}`;
-        saveWrong(it);
-      }
-      updateScoreUI();
-    }
-
-    btnCheck1.onclick = checkC2E;
-    textAnswer.addEventListener("keydown",(e)=>{
-      if(e.key === "Enter"){
-        e.preventDefault();
-        checkC2E();
-      }
-    });
-
-    btnShowAnswer1.onclick = () => {
-      if(finished) return;
-      const it = currentItem();
-      if(!it) return;
-      feedback1.textContent = `✅ 答案：${showWordWithIpa(it.word, it.ipa)}`;
-    };
-
-    btnShowAnswer2.onclick = () => {
-      if(finished) return;
-      const it = currentItem();
-      if(!it) return;
-      feedback2.textContent = `✅ 答案：${it.definition}`;
-      [...choices.children].forEach(b=>{
-        if(b.textContent === it.definition) b.classList.add("correct");
-      });
-      locked = true;
-    };
-
-    function nextQuestion(){
-      if(finished) return;
-      if(!session.length) return;
-
-      if(idx >= session.length - 1){
-        setFinishedUI(true);
-        return;
-      }
-
-      idx += 1;
-      feedback1.textContent = "";
-      feedback2.textContent = "";
-      renderQuestion();
-    }
-
-    btnNext1.onclick = nextQuestion;
-    btnNext2.onclick = nextQuestion;
-
-    function populateLevels(){
-      levelSelect.innerHTML = "";
-      const keys = Object.keys(vocabCache || {});
-
-      // 優先只放 Level 1~6
-      const levels = keys
-        .filter(k => /^Level\s*\d+$/i.test(k))
-        .sort((a,b)=>{
-          const na = parseInt(a.replace(/[^\d]/g,""),10);
-          const nb = parseInt(b.replace(/[^\d]/g,""),10);
-          return (na||0)-(nb||0);
-        });
-
-      // 如果真的沒有 Level key（極少數），就退回全塞
-      const finalList = levels.length ? levels : keys;
-
-      finalList.forEach(lv=>{
-        const opt = document.createElement("option");
-        opt.value = lv;
-        opt.textContent = lv;
-        levelSelect.appendChild(opt);
-      });
-
-      if(finalList.includes("Level 4")) levelSelect.value = "Level 4";
-      else if(finalList.length) levelSelect.value = finalList[0];
-    }
-
-    async function autoLoadDefaultJson(){
-      try{
-        const res = await fetch(DEFAULT_JSON, { cache: "no-store" });
-        if(!res.ok) throw new Error("HTTP " + res.status);
-
-        const raw = await res.json();
-        vocabCache = normalizeVocabCacheShape(raw);
-
-        populateLevels();
-        promptText.textContent = "✅ 已自動載入題庫！請選 Level/題數後按「開始 / 重置」。";
-        levelTag.style.display = "none";
-
-        pool = [];
-        session = [];
-        idx = 0; ok = 0; bad = 0; locked = false;
-        updateScoreUI();
-        updateIndexUI();
-        setFinishedUI(false);
-
-        // 方便你除錯：在 Console 看到有哪些 Level
-        console.log("Loaded levels:", Object.keys(vocabCache));
-      }catch(e){
-        console.error("autoLoadDefaultJson failed:", e);
-        promptText.textContent = "⚠️ 自動載入題庫失敗：請確認 GitHub Pages 已開啟，且 vocab_ceec_1_6.json 與 index.html 同層。";
-      }
-    }
-
-    btnLoad.onclick = async () => {
-      const f = fileInput.files && fileInput.files[0];
-      if(!f){
-        alert("請先選擇 JSON 檔案");
-        return;
-      }
-      try{
-        const text = await f.text();
-        const raw = JSON.parse(text);
-        vocabCache = normalizeVocabCacheShape(raw);
-
-        populateLevels();
-        promptText.textContent = "✅ 已手動載入題庫！請按「開始 / 重置」開始出題。";
-        levelTag.style.display = "none";
-
-        pool = [];
-        session = [];
-        idx = 0; ok = 0; bad = 0; locked = false;
-        updateScoreUI();
-        updateIndexUI();
-        setFinishedUI(false);
-      }catch(e){
-        alert("JSON 解析失敗，請確認檔案格式正確。");
-      }
-    };
-
-    levelSelect.onchange = () => {
-      if(session.length) buildSession();
-    };
-
-    btnClearWrong.onclick = () => {
-      clearWrong();
-      alert("已清除錯題紀錄（localStorage）");
-    };
-
-    updateScoreUI();
-    updateIndexUI();
-    autoLoadDefaultJson();
-  </script>
+fetch(DEFAULT_JSON).then(r=>r.json()).then(raw=>{
+  vocabCache=normalizeVocabCacheShape(raw);
+  Object.keys(vocabCache).forEach(lv=>{
+    const o=document.createElement("option");o.value=lv;o.textContent=lv;
+    levelSelect.appendChild(o);
+  });
+  promptText.textContent="✅ 題庫載入完成，請開始";
+});
+</script>
 </body>
 </html>
