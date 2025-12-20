@@ -2,576 +2,638 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>Vocabulary Trainer Web</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vocabulary Trainer</title>
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    :root{
+      --bg:#eef1f7;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --text:#111827;
+      --primary:#4f46e5;
+      --primary2:#4338ca;
+      --soft:#f3f4f6;
+      --soft2:#e5e7eb;
+      --ok:#16a34a;
+      --bad:#ef4444;
+      --shadow: 0 18px 40px rgba(17,24,39,.12);
+      --radius:18px;
     }
-    body {
-      margin: 0;
-      padding: 0;
-      background: #eef1f7;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+    *{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+    html,body{width:100%;max-width:100%;overflow-x:hidden;}
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      display:flex; align-items:center; justify-content:center;
+      min-height:100vh; padding:20px;
     }
-    .app {
-      background: #ffffff;
-      width: min(520px, 100%);
-      margin: 24px;
-      border-radius: 24px;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
-      padding: 24px 24px 18px;
+    .wrap{width:min(720px, 96vw);}
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:22px 22px 18px;
     }
-    h1 {
-      margin: 0 0 4px;
-      font-size: 24px;
-      font-weight: 700;
-      text-align: center;
+    h1{
+      margin:0 0 4px; text-align:center;
+      font-size:28px; letter-spacing:.2px;
     }
-    .subtitle {
-      text-align: center;
-      color: #64748b;
-      margin-bottom: 12px;
-      font-size: 14px;
+    .sub{
+      text-align:center; color:var(--muted);
+      margin:0 0 16px; font-size:14px;
     }
-    .mode-switch {
-      display: flex;
-      margin-bottom: 12px;
-      background: #e5e7eb;
-      border-radius: 999px;
-      padding: 3px;
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+    .tabs{margin:10px 0 14px; background:var(--soft2); border-radius:999px; padding:4px; display:flex; gap:4px;}
+    .tab{
+      flex:1; border:0; padding:10px 12px; border-radius:999px;
+      background:transparent; cursor:pointer; font-weight:700;
+      color:#374151; font-size:15px;
     }
-    .mode-btn {
-      flex: 1;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: none;
-      background: transparent;
-      font-size: 14px;
-      font-weight: 600;
-      color: #6b7280;
-      cursor: pointer;
+    .tab.active{
+      background:var(--primary);
+      color:#fff;
+      box-shadow:0 10px 20px rgba(79,70,229,.25);
     }
-    .mode-btn.active {
-      background: #4f46e5;
-      color: #ffffff;
-      box-shadow: 0 6px 14px rgba(79,70,229,.35);
+    .meta{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; margin:8px 0 10px;
     }
-
-    .top-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-      font-size: 13px;
-      color: #475569;
-    }
-    .stats {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      font-size: 13px;
-    }
-    .badge {
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .badge-green { background: #dcfce7; color: #15803d; }
-    .badge-red { background: #fee2e2; color: #b91c1c; }
-    .badge-gray { background: #e2e8f0; color: #334155; }
-
-    .level-select {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-    }
-    select {
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid #cbd5f5;
-      font-size: 13px;
-      background: #f8fafc;
-      outline: none;
-    }
-    .card {
-      background: #f8fafc;
-      border-radius: 16px;
-      padding: 12px 14px 10px;
-      margin-bottom: 14px;
-    }
-    .label {
-      font-size: 13px;
-      color: #64748b;
-      margin-bottom: 4px;
-    }
-    .chinese {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: #0f172a;
-    }
-    .level-tag {
-      display: inline-block;
-      padding: 2px 10px;
-      border-radius: 999px;
-      background: #e0f2fe;
-      color: #0369a1;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .input-row {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-    input[type="text"] {
-      width: 100%;
-      padding: 9px 12px;
-      border-radius: 999px;
-      border: 1px solid #cbd5f5;
-      outline: none;
-      font-size: 15px;
-    }
-    input[type="text"]:focus {
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 1px #6366f133;
-    }
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 6px;
-    }
-    button {
-      flex: 1;
-      padding: 9px 10px;
-      border-radius: 999px;
-      border: none;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .btn-primary { background: #4f46e5; color:#fff; }
-    .btn-secondary { background:#e2e8f0; color:#1e293b; }
-
-    .answer-row {
-      font-size:14px;
-      margin-bottom:4px;
-      min-height:22px;
-    }
-    .answer-ok { color:#15803d; }
-    .answer-wrong { color:#b91c1c; }
-
-    .tip {
-      font-size:12px;
-      color:#94a3b8;
-      text-align:center;
-      border-top:1px dashed #e2e8f0;
-      padding-top:6px;
-      margin-top:4px;
-    }
-
-    /* 英→中四選一用 */
-    .word-en {
-      text-align:center;
-      font-size:32px;
-      font-weight:600;
-      margin:16px 0 10px;
-    }
-    .options {
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      margin-bottom:8px;
-    }
-    .opt-btn {
-      width:100%;
-      padding:10px 12px;
-      font-size:16px;
+    .meta .left{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+    .meta label{color:#374151; font-weight:600; font-size:14px;}
+    select, input[type="number"]{
+      border:1px solid var(--soft2);
       border-radius:10px;
-      border:1px solid #cbd5e1;
-      background:#f9fafb;
-      cursor:pointer;
-      text-align:center;
+      padding:8px 10px;
+      font-size:14px;
+      background:#fff;
     }
-    .opt-btn.correct { background:#dcfce7; border-color:#16a34a; }
-    .opt-btn.wrong { background:#fee2e2; border-color:#b91c1c; }
-    .small-row {
-      display:flex;
-      justify-content:center;
-      gap:8px;
-      margin-bottom:4px;
+    .pill{
+      display:flex; align-items:center; gap:8px;
+      font-weight:800; font-size:14px;
     }
-    .small-row button {
-      flex:none;
-      padding:6px 10px;
+    .badge{
+      padding:4px 10px; border-radius:999px; background:var(--soft);
+      font-weight:800; min-width:44px; text-align:center;
+    }
+    .badge.ok{background:#dcfce7; color:var(--ok);}
+    .badge.bad{background:#fee2e2; color:var(--bad);}
+    .badge.rate{background:#e0e7ff; color:var(--primary2);}
+    .box{
+      background:#f8fafc;
+      border:1px solid var(--soft2);
+      border-radius:16px;
+      padding:14px 14px;
+      margin:10px 0 12px;
+      min-height:96px;
+    }
+    .box .label{color:#374151; font-weight:800; margin-bottom:6px;}
+    .prompt{
+      font-size:18px; font-weight:800; line-height:1.35;
+      white-space:pre-wrap;
+    }
+    .leveltag{
+      display:inline-block; margin-top:10px;
+      background:#dbeafe; color:#1d4ed8;
+      padding:4px 10px; border-radius:999px;
+      font-weight:900; font-size:13px;
+    }
+    .answerArea{margin-top:12px;}
+    .inputline{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+    .textinput{
+      flex:1; min-width:220px;
+      border:1px solid var(--soft2); border-radius:12px;
+      padding:10px 12px; font-size:16px;
+    }
+    .btn{
+      border:0; cursor:pointer;
+      padding:10px 14px;
       border-radius:999px;
-      font-size:13px;
+      font-weight:900; font-size:15px;
+      background:var(--soft2);
+      color:#111827;
     }
+    .btn.primary{
+      background:var(--primary); color:#fff;
+      box-shadow:0 10px 20px rgba(79,70,229,.22);
+    }
+    .btn.primary:hover{background:var(--primary2);}
+    .btn.ghost{background:transparent; border:1px solid var(--soft2); color:#111827;}
+    .btn:disabled{opacity:.5; cursor:not-allowed;}
+    .choices{display:grid; gap:10px; margin-top:10px;}
+    .choice{
+      text-align:left;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--soft2);
+      background:#fff;
+      cursor:pointer;
+      font-weight:800;
+    }
+    .choice:hover{background:#f9fafb;}
+    .choice.correct{border-color:#86efac; background:#f0fdf4;}
+    .choice.wrong{border-color:#fecaca; background:#fef2f2;}
+    .hr{height:1px;background:var(--soft2); margin:14px 0;}
+    .tip{color:var(--muted); font-size:13px; text-align:center;}
+    .small{color:var(--muted); font-size:13px;}
+    .fileRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;}
   </style>
 </head>
 
 <body>
-  <div class="app">
-    <h1>Vocabulary Trainer</h1>
-    <div class="subtitle">一鍵切換：中 ➜ 英 填空 / 英 ➜ 中 四選一</div>
+  <div class="wrap">
+    <div class="card">
+      <h1>Vocabulary Trainer</h1>
+      <p class="sub">— 一鍵切換：中 ➜ 英 填空 / 英 ➜ 中 四選一 —</p>
 
-    <!-- 模式切換 -->
-    <div class="mode-switch">
-      <button class="mode-btn active" data-mode="zh2en">中 ➜ 英 填空</button>
-      <button class="mode-btn" data-mode="en2zh">英 ➜ 中 四選一</button>
-    </div>
-
-    <!-- ==== 模式一：中文 -> 英文 ==== -->
-    <div id="zh2enMode">
-      <div class="top-row">
-        <div id="zh_counter">題目：0 / 0</div>
-        <div class="stats">
-          <span class="badge badge-green" id="zh_correct">0</span>
-          <span class="badge badge-red" id="zh_wrong">0</span>
-          <span class="badge badge-gray" id="zh_acc">0%</span>
-        </div>
+      <div class="tabs">
+        <button id="tabC2E" class="tab active">中 ➜ 英 填空</button>
+        <button id="tabE2C" class="tab">英 ➜ 中 四選一</button>
       </div>
 
-      <div class="top-row" style="margin-bottom:10px;">
-        <div class="level-select">
-          <span>出題 Level：</span>
-          <select id="zh_levelSelect"></select>
-        </div>
-        <span id="zh_poolInfo" style="font-size:12px; color:#94a3b8;"></span>
-      </div>
+      <div class="meta">
+        <div class="left">
+          <div class="pill">
+            <span class="small">題目：</span>
+            <span id="idxText" class="small">0 / 0</span>
+          </div>
 
-      <div class="card">
-        <div class="label">中文 / 解釋</div>
-        <div class="chinese" id="zh_chinese">載入中…</div>
-        <div class="level-tag" id="zh_levelTag">Level ?</div>
-      </div>
+          <label>出題 Level：</label>
+          <select id="levelSelect"></select>
 
-      <div class="input-row">
-        <div style="display:flex; justify-content:space-between;">
-          <span class="label">請輸入英文單字</span>
-          <button id="zh_showAnswer" class="btn-secondary" style="flex:none; padding:4px 10px; font-size:12px;">顯示答案</button>
-        </div>
-        <input id="zh_answer" placeholder="輸入英文後按 Enter 或『檢查』">
-      </div>
-
-      <div class="btn-row">
-        <button id="zh_check" class="btn-primary">檢查答案</button>
-        <button id="zh_next" class="btn-secondary">下一題</button>
-      </div>
-
-      <div id="zh_feedback" class="answer-row"></div>
-      <div class="tip">Tip：按 Enter 可送出答案；右上角可切換模式或 Level。</div>
-    </div>
-
-    <!-- ==== 模式二：英文 -> 中文 四選一 ==== -->
-    <div id="en2zhMode" style="display:none;">
-      <div class="top-row">
-        <div class="level-select">
-          <span>出題 Level：</span>
-          <select id="en_levelSelect"></select>
-        </div>
-        <div>
-          題數：
-          <select id="en_countSelect" style="width:80px;">
-            <option value="5">5</option>
+          <!-- ✅ 題數選擇（你要加的功能） -->
+          <label>題數：</label>
+          <select id="countSelect">
+            <option value="all">全部</option>
             <option value="10">10</option>
             <option value="20">20</option>
             <option value="50">50</option>
-            <option value="ALL">全部</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="custom">自訂</option>
           </select>
+          <input id="customCount" type="number" min="1" step="1" placeholder="自訂題數" style="display:none;width:110px;" />
+
+          <button id="btnStart" class="btn ghost">開始 / 重置</button>
+        </div>
+
+        <div class="pill">
+          <span id="okBadge" class="badge ok">0</span>
+          <span id="badBadge" class="badge bad">0</span>
+          <span id="rateBadge" class="badge rate">0%</span>
         </div>
       </div>
 
-      <div class="top-row" style="margin-bottom:4px;">
-        <span id="en_progress">第 0 / 0 題</span>
-        <span id="en_levelInfo" style="font-size:13px; color:#64748b;">Level ?</span>
+      <div class="row small" style="justify-content:space-between;">
+        <div>題庫：<span id="poolSize">0</span> 字</div>
+        <div>本次測驗：<span id="sessionSize">0</span> 題</div>
       </div>
 
-      <div class="word-en" id="en_word">請先按「開始測驗」</div>
-
-      <div class="options" id="en_options"></div>
-
-      <div class="small-row">
-        <button id="en_start" class="btn-secondary">開始測驗</button>
-        <button id="en_speak" class="btn-secondary">🔊 發音</button>
-        <button id="en_showAns" class="btn-secondary">看答案</button>
-        <button id="en_next" class="btn-primary">下一題</button>
+      <div class="box">
+        <div class="label" id="promptLabel">中文 / 解釋</div>
+        <div class="prompt" id="promptText">請先載入題庫 JSON，然後按「開始 / 重置」</div>
+        <div class="leveltag" id="levelTag" style="display:none;"></div>
       </div>
 
-      <div id="en_msg" class="answer-row"></div>
-      <div class="tip">說明：從四個中文選項中選出正確解釋。</div>
+      <div id="c2eArea" class="answerArea">
+        <div class="row" style="justify-content:space-between;">
+          <div class="small">請輸入英文單字</div>
+          <button id="btnShowAnswer1" class="btn">顯示答案</button>
+        </div>
+        <div class="inputline">
+          <input id="textAnswer" class="textinput" placeholder="輸入英文後按 Enter 或「檢查」" />
+          <button id="btnCheck1" class="btn primary">檢查答案</button>
+          <button id="btnNext1" class="btn">下一題</button>
+        </div>
+        <div id="feedback1" class="small" style="margin-top:10px;"></div>
+      </div>
+
+      <div id="e2cArea" class="answerArea" style="display:none;">
+        <div class="row" style="justify-content:space-between;">
+          <div class="small">請從四個選項中選出正確中文/解釋</div>
+          <button id="btnShowAnswer2" class="btn">顯示答案</button>
+        </div>
+        <div class="choices" id="choices"></div>
+        <div class="row" style="margin-top:10px;">
+          <button id="btnNext2" class="btn">下一題</button>
+          <div id="feedback2" class="small"></div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="fileRow">
+        <input id="fileInput" type="file" accept=".json" />
+        <button id="btnLoad" class="btn primary">載入題庫 JSON</button>
+        <button id="btnClearWrong" class="btn">清除錯題紀錄</button>
+      </div>
+      <div class="tip">Tip：按 Enter 可送出（填空模式）；右上可切換模式 / Level / 題數。</div>
     </div>
   </div>
 
-<script>
-  // 共用：載入 vocab
-  let allVocab = [];
+  <script>
+    // ===========================
+    //   題庫資料格式（vocab_cache.json）
+    //   {
+    //     "Level 1":[{"word":"...","definition":"...","ipa":"[...]"?}, ...],
+    //     ...
+    //   }
+    // ===========================
 
-  function normalize(s) {
-    return (s || "").trim().toLowerCase().replace(/\s+/g, " ");
-  }
+    // ---- 狀態 ----
+    let vocabCache = null;
+    let mode = "C2E"; // C2E: 中->英填空, E2C: 英->中四選一
 
-  async function loadVocab() {
-    const res = await fetch("vocab_ceec_1_6.json");
-    allVocab = await res.json();
+    let pool = [];          // 目前 Level 的全題庫（normalized items）
+    let session = [];       // 本次抽題後的題目陣列
+    let idx = 0;            // 目前題號
+    let ok = 0, bad = 0;    // 計分
+    let locked = false;     // E2C 防止重複點選
 
-    initZh2En();
-    initEn2Zh();
-  }
+    // ---- DOM ----
+    const tabC2E = document.getElementById("tabC2E");
+    const tabE2C = document.getElementById("tabE2C");
 
-  // ===== 模式切換 =====
-  const zhModeDiv = document.getElementById("zh2enMode");
-  const enModeDiv = document.getElementById("en2zhMode");
-  document.querySelectorAll(".mode-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      const mode = btn.dataset.mode;
-      zhModeDiv.style.display = (mode === "zh2en") ? "block" : "none";
-      enModeDiv.style.display = (mode === "en2zh") ? "block" : "none";
-    });
-  });
+    const levelSelect = document.getElementById("levelSelect");
+    const countSelect = document.getElementById("countSelect");
+    const customCount = document.getElementById("customCount");
+    const btnStart = document.getElementById("btnStart");
 
-  // ===== 模式一：中 -> 英 =====
-  let zhFiltered = [];
-  let zhIndex = 0;
-  let zhCorrect = 0, zhWrong = 0;
+    const idxText = document.getElementById("idxText");
+    const okBadge = document.getElementById("okBadge");
+    const badBadge = document.getElementById("badBadge");
+    const rateBadge = document.getElementById("rateBadge");
 
-  function initZh2En() {
-    const levels = [...new Set(allVocab.map(v => v.level))];
-    const sel = document.getElementById("zh_levelSelect");
-    sel.innerHTML = `<option value="ALL">全部</option>` +
-      levels.map(l => `<option value="${l}">${l}</option>`).join("");
+    const poolSize = document.getElementById("poolSize");
+    const sessionSize = document.getElementById("sessionSize");
 
-    sel.addEventListener("change", zhApplyFilter);
-    zhApplyFilter();
+    const promptLabel = document.getElementById("promptLabel");
+    const promptText = document.getElementById("promptText");
+    const levelTag = document.getElementById("levelTag");
 
-    document.getElementById("zh_check").onclick = zhCheck;
-    document.getElementById("zh_next").onclick = zhNext;
-    document.getElementById("zh_showAnswer").onclick = () => {
-      const item = zhFiltered[zhIndex] || null;
-      if (!item) return;
-      document.getElementById("zh_feedback").textContent = `答案：${item.word}`;
-      document.getElementById("zh_feedback").className = "answer-row";
+    const c2eArea = document.getElementById("c2eArea");
+    const e2cArea = document.getElementById("e2cArea");
+
+    const textAnswer = document.getElementById("textAnswer");
+    const btnCheck1 = document.getElementById("btnCheck1");
+    const btnNext1 = document.getElementById("btnNext1");
+    const btnShowAnswer1 = document.getElementById("btnShowAnswer1");
+    const feedback1 = document.getElementById("feedback1");
+
+    const choices = document.getElementById("choices");
+    const btnNext2 = document.getElementById("btnNext2");
+    const btnShowAnswer2 = document.getElementById("btnShowAnswer2");
+    const feedback2 = document.getElementById("feedback2");
+
+    const fileInput = document.getElementById("fileInput");
+    const btnLoad = document.getElementById("btnLoad");
+    const btnClearWrong = document.getElementById("btnClearWrong");
+
+    // ===========================
+    //   工具
+    // ===========================
+    function normalizeItem(item){
+      if(!item || typeof item !== "object") return null;
+
+      const word = (item.word || "").trim();
+      let defRaw = (item.definition || item.answer || "").trim();
+      let ipa = (item.ipa || "").trim();
+
+      if(!word || !defRaw) return null;
+
+      // 取開頭 [IPA]（如果 definition 以音標開頭）
+      const m = defRaw.match(/^\s*\[([^\]]+)\]\s*(.*)$/);
+      if(m){
+        const ipaFromDef = `[${m[1].trim()}]`;
+        const rest = (m[2] || "").trim();
+        if(!ipa) ipa = ipaFromDef;
+        defRaw = rest;
+      }
+      const definition = defRaw.trim();
+      if(!definition) return null;
+
+      return { word, definition, ipa };
+    }
+
+    function showWordWithIpa(word, ipa){
+      const w = (word || "").trim();
+      const i = (ipa || "").trim();
+      if(w && i) return `${w} ${i}`;
+      return w;
+    }
+
+    function shuffle(arr){
+      for(let i=arr.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function clampInt(n, min, max){
+      n = parseInt(n,10);
+      if(isNaN(n)) return min;
+      return Math.max(min, Math.min(max, n));
+    }
+
+    function updateScoreUI(){
+      okBadge.textContent = ok;
+      badBadge.textContent = bad;
+      const total = ok + bad;
+      const rate = total ? Math.round((ok/total)*100) : 0;
+      rateBadge.textContent = `${rate}%`;
+    }
+
+    function updateIndexUI(){
+      idxText.textContent = `${session.length ? (idx+1) : 0} / ${session.length}`;
+      poolSize.textContent = pool.length;
+      sessionSize.textContent = session.length;
+    }
+
+    function currentItem(){
+      if(!session.length) return null;
+      return session[idx];
+    }
+
+    function saveWrong(item){
+      // 存到 localStorage
+      const key = "vt_wrong";
+      let list = [];
+      try{ list = JSON.parse(localStorage.getItem(key) || "[]"); }catch(e){ list = []; }
+
+      // 以 word 去重
+      if(!list.some(x => x && x.word === item.word)){
+        list.push({word:item.word, definition:item.definition, ipa:item.ipa || ""});
+      }
+      localStorage.setItem(key, JSON.stringify(list));
+    }
+
+    function clearWrong(){
+      localStorage.removeItem("vt_wrong");
+    }
+
+    // ===========================
+    //   ✅ 題數選擇（核心）
+    // ===========================
+    function getDesiredCount(){
+      const v = countSelect.value;
+      if(v === "all") return pool.length;
+      if(v === "custom"){
+        const c = clampInt(customCount.value, 1, pool.length);
+        return c;
+      }
+      return clampInt(v, 1, pool.length);
+    }
+
+    function buildSession(){
+      if(!vocabCache){
+        alert("請先載入題庫 JSON（vocab_cache.json）");
+        return;
+      }
+
+      const lv = levelSelect.value;
+      const rawList = (vocabCache[lv] || []);
+      pool = rawList.map(normalizeItem).filter(Boolean);
+
+      const n = getDesiredCount();
+      const picked = shuffle([...pool]).slice(0, n);
+
+      session = picked;
+      idx = 0;
+      ok = 0;
+      bad = 0;
+      locked = false;
+
+      feedback1.textContent = "";
+      feedback2.textContent = "";
+
+      updateScoreUI();
+      updateIndexUI();
+      renderQuestion();
+    }
+
+    function renderQuestion(){
+      updateIndexUI();
+      locked = false;
+
+      const it = currentItem();
+      if(!it){
+        promptLabel.textContent = "提示";
+        promptText.textContent = "目前沒有題目。請載入題庫並按「開始 / 重置」。";
+        levelTag.style.display = "none";
+        choices.innerHTML = "";
+        return;
+      }
+
+      levelTag.style.display = "inline-block";
+      levelTag.textContent = levelSelect.value;
+
+      if(mode === "C2E"){
+        // 中->英填空：題幹顯示中文/解釋
+        promptLabel.textContent = "中文 / 解釋";
+        promptText.textContent = it.definition;
+        textAnswer.value = "";
+        textAnswer.focus();
+      }else{
+        // 英->中四選一：題幹顯示英文+音標
+        promptLabel.textContent = "英文（含音標）";
+        promptText.textContent = showWordWithIpa(it.word, it.ipa);
+        renderChoices(it);
+      }
+    }
+
+    function renderChoices(it){
+      choices.innerHTML = "";
+      feedback2.textContent = "";
+
+      // 正確選項
+      const correct = it.definition;
+
+      // 從 pool 抽 3 個干擾
+      const candidates = pool
+        .map(x => x.definition)
+        .filter(d => d && d !== correct);
+
+      shuffle(candidates);
+      const distractors = candidates.slice(0, Math.min(3, candidates.length));
+
+      const opts = shuffle([correct, ...distractors]);
+
+      opts.forEach((opt) => {
+        const btn = document.createElement("button");
+        btn.className = "choice";
+        btn.textContent = opt;
+        btn.onclick = () => {
+          if(locked) return;
+          locked = true;
+
+          if(opt === correct){
+            btn.classList.add("correct");
+            ok++;
+            feedback2.textContent = "✅ 正確！";
+          }else{
+            btn.classList.add("wrong");
+            bad++;
+            feedback2.textContent = `❌ 錯誤，正確答案：${correct}`;
+            saveWrong(it);
+            // 標出正確
+            [...choices.children].forEach(b=>{
+              if(b.textContent === correct) b.classList.add("correct");
+            });
+          }
+          updateScoreUI();
+        };
+        choices.appendChild(btn);
+      });
+    }
+
+    // ===========================
+    //   事件：模式切換
+    // ===========================
+    function setMode(next){
+      mode = next;
+      tabC2E.classList.toggle("active", mode==="C2E");
+      tabE2C.classList.toggle("active", mode==="E2C");
+      c2eArea.style.display = (mode==="C2E") ? "" : "none";
+      e2cArea.style.display = (mode==="E2C") ? "" : "none";
+      feedback1.textContent = "";
+      feedback2.textContent = "";
+      renderQuestion();
+    }
+
+    tabC2E.onclick = () => setMode("C2E");
+    tabE2C.onclick = () => setMode("E2C");
+
+    // ===========================
+    //   事件：題數 UI 顯示
+    // ===========================
+    countSelect.onchange = () => {
+      const v = countSelect.value;
+      customCount.style.display = (v === "custom") ? "" : "none";
     };
-    document.getElementById("zh_answer").addEventListener("keydown", e => {
-      if (e.key === "Enter") zhCheck();
-    });
-  }
 
-  function zhApplyFilter() {
-    const lv = document.getElementById("zh_levelSelect").value;
-    zhFiltered = (lv === "ALL") ? [...allVocab] : allVocab.filter(v => v.level === lv);
-    shuffle(zhFiltered);
-    zhIndex = 0;
-    zhCorrect = zhWrong = 0;
-    zhUpdateStats();
-    zhShowQ();
-  }
+    // ===========================
+    //   事件：開始 / 重置
+    // ===========================
+    btnStart.onclick = () => buildSession();
 
-  function zhShowQ() {
-    const chEl = document.getElementById("zh_chinese");
-    const lvEl = document.getElementById("zh_levelTag");
-    const counterEl = document.getElementById("zh_counter");
-    const poolInfo = document.getElementById("zh_poolInfo");
-    const fb = document.getElementById("zh_feedback");
-    fb.textContent = "";
-    fb.className = "answer-row";
-    document.getElementById("zh_answer").value = "";
-    document.getElementById("zh_answer").focus();
+    // ===========================
+    //   C2E：檢查 / 顯示答案 / 下一題
+    // ===========================
+    function checkC2E(){
+      const it = currentItem();
+      if(!it) return;
+      const ans = (textAnswer.value || "").trim();
 
-    if (!zhFiltered.length) {
-      chEl.textContent = "此 Level 沒有單字。";
-      lvEl.textContent = "N/A";
-      counterEl.textContent = "題目：0 / 0";
-      poolInfo.textContent = "";
-      return;
-    }
-    if (zhIndex >= zhFiltered.length) zhIndex = 0;
+      if(!ans){
+        feedback1.textContent = "請先輸入答案";
+        return;
+      }
 
-    const item = zhFiltered[zhIndex];
-    chEl.textContent = item.definition || "(無中文)";
-    lvEl.textContent = item.level || "Level ?";
-    counterEl.textContent = `題目：${zhIndex + 1} / ${zhFiltered.length}`;
-    poolInfo.textContent = `題庫：${zhFiltered.length} 字`;
-  }
-
-  function zhCheck() {
-    if (!zhFiltered.length) return;
-    const item = zhFiltered[zhIndex];
-    const ans = normalize(document.getElementById("zh_answer").value);
-    const correctWord = normalize(item.word);
-    const fb = document.getElementById("zh_feedback");
-
-    if (ans && ans === correctWord) {
-      fb.textContent = `✔ 正確！${item.word}`;
-      fb.className = "answer-row answer-ok";
-      zhCorrect++;
-    } else {
-      fb.textContent = `✘ 錯誤，正確答案：${item.word}`;
-      fb.className = "answer-row answer-wrong";
-      zhWrong++;
-    }
-    zhIndex++;
-    zhUpdateStats();
-  }
-
-  function zhNext() {
-    zhShowQ();
-  }
-
-  function zhUpdateStats() {
-    const total = zhCorrect + zhWrong;
-    const acc = total === 0 ? 0 : Math.round(zhCorrect / total * 100);
-    document.getElementById("zh_correct").textContent = zhCorrect;
-    document.getElementById("zh_wrong").textContent = zhWrong;
-    document.getElementById("zh_acc").textContent = acc + "%";
-  }
-
-  // ===== 模式二：英 -> 中 四選一 =====
-  let enPool = [];
-  let enQuiz = [];
-  let enIndex = 0;
-  let enAnswered = false;
-  let enCurrent = null;
-
-  function initEn2Zh() {
-    const levels = [...new Set(allVocab.map(v => v.level))];
-    const sel = document.getElementById("en_levelSelect");
-    sel.innerHTML = levels.map(l => `<option value="${l}">${l}</option>`).join("");
-
-    document.getElementById("en_start").onclick = enStart;
-    document.getElementById("en_next").onclick = () => { enIndex++; enShowQ(); };
-    document.getElementById("en_showAns").onclick = enShowAns;
-    document.getElementById("en_speak").onclick = enSpeak;
-  }
-
-  function enStart() {
-    const lv = document.getElementById("en_levelSelect").value;
-    enPool = allVocab.filter(v => v.level === lv);
-    if (enPool.length < 2) {
-      alert("這個 Level 單字太少，無法出題。");
-      return;
-    }
-    shuffle(enPool);
-    const countSel = document.getElementById("en_countSelect").value;
-    const n = (countSel === "ALL") ? enPool.length : Math.min(enPool.length, parseInt(countSel,10));
-    enQuiz = enPool.slice(0, n);
-    enIndex = 0;
-    document.getElementById("en_levelInfo").textContent = lv;
-    enShowQ();
-  }
-
-  function enShowQ() {
-    const wordEl = document.getElementById("en_word");
-    const optsEl = document.getElementById("en_options");
-    const progEl = document.getElementById("en_progress");
-    const msgEl = document.getElementById("en_msg");
-    msgEl.textContent = "";
-    msgEl.className = "answer-row";
-    enAnswered = false;
-
-    if (!enQuiz.length) {
-      wordEl.textContent = "請先按「開始測驗」。";
-      optsEl.innerHTML = "";
-      progEl.textContent = "第 0 / 0 題";
-      return;
-    }
-    if (enIndex >= enQuiz.length) {
-      wordEl.textContent = "測驗結束 🎉";
-      optsEl.innerHTML = "";
-      progEl.textContent = `第 ${enQuiz.length} / ${enQuiz.length} 題`;
-      return;
+      if(ans.toLowerCase() === it.word.toLowerCase()){
+        ok++;
+        feedback1.textContent = "✅ 正確！";
+      }else{
+        bad++;
+        feedback1.textContent = `❌ 錯誤，正確答案：${showWordWithIpa(it.word, it.ipa)}`;
+        saveWrong(it);
+      }
+      updateScoreUI();
     }
 
-    const item = enQuiz[enIndex];
-    enCurrent = item;
-    wordEl.textContent = item.word;
-    progEl.textContent = `第 ${enIndex + 1} / ${enQuiz.length} 題`;
-
-    const options = buildOptions(item, enPool);
-    optsEl.innerHTML = "";
-    options.forEach(opt => {
-      const btn = document.createElement("button");
-      btn.className = "opt-btn";
-      btn.textContent = opt.definition;
-      btn.onclick = () => enChoose(btn, opt);
-      optsEl.appendChild(btn);
-    });
-  }
-
-  function buildOptions(correctItem, pool) {
-    const arr = [correctItem];
-    const others = pool.filter(v => v !== correctItem);
-    shuffle(others);
-    while (arr.length < 4 && others.length) arr.push(others.pop());
-    shuffle(arr);
-    return arr;
-  }
-
-  function enChoose(btn, chosen) {
-    if (enAnswered) return;
-    enAnswered = true;
-    const msgEl = document.getElementById("en_msg");
-    const buttons = Array.from(document.querySelectorAll(".opt-btn"));
-    buttons.forEach(b => b.disabled = true);
-
-    buttons.forEach(b => {
-      if (b.textContent === enCurrent.definition) b.classList.add("correct");
+    btnCheck1.onclick = checkC2E;
+    textAnswer.addEventListener("keydown",(e)=>{
+      if(e.key === "Enter"){
+        e.preventDefault();
+        checkC2E();
+      }
     });
 
-    if (chosen === enCurrent) {
-      msgEl.textContent = "✔ 答對了！";
-      msgEl.className = "answer-row answer-ok";
-    } else {
-      msgEl.textContent = `✘ 答錯了，正確答案是：「${enCurrent.definition}」`;
-      msgEl.className = "answer-row answer-wrong";
-      btn.classList.add("wrong");
+    btnShowAnswer1.onclick = () => {
+      const it = currentItem();
+      if(!it) return;
+      feedback1.textContent = `✅ 答案：${showWordWithIpa(it.word, it.ipa)}`;
+    };
+
+    function nextQuestion(){
+      if(!session.length) return;
+      idx = (idx + 1) % session.length;
+      feedback1.textContent = "";
+      feedback2.textContent = "";
+      renderQuestion();
     }
-  }
 
-  function enShowAns() {
-    if (!enCurrent) return;
-    const msgEl = document.getElementById("en_msg");
-    const buttons = Array.from(document.querySelectorAll(".opt-btn"));
-    buttons.forEach(b => {
-      if (b.textContent === enCurrent.definition) b.classList.add("correct");
-    });
-    msgEl.textContent = `答案是：「${enCurrent.definition}」`;
-    msgEl.className = "answer-row answer-ok";
-    enAnswered = true;
-  }
+    btnNext1.onclick = nextQuestion;
+    btnNext2.onclick = nextQuestion;
 
-  function enSpeak() {
-    if (!enCurrent) return;
-    const u = new SpeechSynthesisUtterance(enCurrent.word);
-    u.lang = "en-US";
-    speechSynthesis.cancel();
-    speechSynthesis.speak(u);
-  }
+    btnShowAnswer2.onclick = () => {
+      const it = currentItem();
+      if(!it) return;
+      feedback2.textContent = `✅ 答案：${it.definition}`;
+      // 標出正確
+      [...choices.children].forEach(b=>{
+        if(b.textContent === it.definition) b.classList.add("correct");
+      });
+      locked = true;
+    };
 
-  // ===== 工具 =====
-  function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+    // ===========================
+    //   載入 JSON
+    // ===========================
+    function populateLevels(){
+      levelSelect.innerHTML = "";
+      const levels = Object.keys(vocabCache || {}).sort((a,b)=>{
+        const na = parseInt(a.replace(/[^\d]/g,""),10);
+        const nb = parseInt(b.replace(/[^\d]/g,""),10);
+        return (na||0)-(nb||0);
+      });
+      levels.forEach(lv=>{
+        const opt = document.createElement("option");
+        opt.value = lv;
+        opt.textContent = lv;
+        levelSelect.appendChild(opt);
+      });
+      // 預設選 Level 4（若存在）
+      const has4 = levels.includes("Level 4");
+      if(has4) levelSelect.value = "Level 4";
     }
-  }
 
-  loadVocab();
-</script>
+    btnLoad.onclick = async () => {
+      const f = fileInput.files && fileInput.files[0];
+      if(!f){
+        alert("請先選擇 vocab_cache.json 檔案");
+        return;
+      }
+      try{
+        const text = await f.text();
+        const obj = JSON.parse(text);
+        vocabCache = obj;
+        populateLevels();
+        promptText.textContent = "已載入題庫！請按「開始 / 重置」開始出題。";
+        levelTag.style.display = "none";
+        pool = [];
+        session = [];
+        idx = 0; ok = 0; bad = 0;
+        updateScoreUI();
+        updateIndexUI();
+      }catch(e){
+        alert("JSON 解析失敗，請確認檔案格式正確：vocab_cache.json");
+      }
+    };
+
+    // 更換 Level 後，通常會想重抽題
+    levelSelect.onchange = () => {
+      // 不自動重抽也可以，但多數人期待直接更新
+      // 這裡選擇「不強制」，但有題目時會即時更新提示
+      if(session.length) buildSession();
+    };
+
+    btnClearWrong.onclick = () => {
+      clearWrong();
+      alert("已清除錯題紀錄（localStorage）");
+    };
+
+    // 初始 UI
+    updateScoreUI();
+    updateIndexUI();
+  </script>
 </body>
 </html>
