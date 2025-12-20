@@ -162,18 +162,18 @@
           <!-- ✅ 題數選擇 -->
           <label>題數：</label>
           <select id="countSelect">
-            <option value="all">全部</option>
+            <option value="all">全部（最多 500）</option>
             <option value="10">10</option>
             <option value="20">20</option>
             <option value="50">50</option>
             <option value="100">100</option>
             <option value="200">200</option>
-            <option value="custom">自訂</option>
+            <option value="custom">自訂（1-500）</option>
           </select>
 
           <!-- ✅ 自訂題數：限制 1~500 -->
           <input id="customCount" type="number" min="1" max="500" step="1" placeholder="1-500"
-                 style="display:none;width:110px;" />
+                 style="display:none;width:120px;" />
 
           <button id="btnStart" class="btn ghost">開始 / 重置</button>
         </div>
@@ -192,7 +192,7 @@
 
       <div class="box">
         <div class="label" id="promptLabel">中文 / 解釋</div>
-        <div class="prompt" id="promptText">請先載入題庫 JSON，然後按「開始 / 重置」</div>
+        <div class="prompt" id="promptText">讀取題庫中…</div>
         <div class="leveltag" id="levelTag" style="display:none;"></div>
       </div>
 
@@ -225,7 +225,7 @@
 
       <div class="fileRow">
         <input id="fileInput" type="file" accept=".json" />
-        <button id="btnLoad" class="btn primary">載入題庫 JSON</button>
+        <button id="btnLoad" class="btn primary">手動載入題庫 JSON</button>
         <button id="btnClearWrong" class="btn">清除錯題紀錄</button>
       </div>
       <div class="tip">Tip：按 Enter 可送出（填空模式）；右上可切換模式 / Level / 題數。</div>
@@ -233,6 +233,11 @@
   </div>
 
   <script>
+    // ===========================
+    //   設定：GitHub 上的預設題庫檔名
+    // ===========================
+    const DEFAULT_JSON = "./vocab_ceec_1_6.json";
+
     let vocabCache = null;
     let mode = "C2E";
 
@@ -241,6 +246,7 @@
     let idx = 0;
     let ok = 0, bad = 0;
     let locked = false;
+    let finished = false; // ✅ 固定題數：做到最後就結束
 
     const tabC2E = document.getElementById("tabC2E");
     const tabE2C = document.getElementById("tabE2C");
@@ -355,11 +361,9 @@
       localStorage.removeItem("vt_wrong");
     }
 
-    // ✅ 題數選擇：自訂 1~500，且不超過該 Level 題庫數量
+    // ✅ 題數選擇：任選 1~500，且不超過該 Level 題庫數量
     function getDesiredCount(){
       const v = countSelect.value;
-
-      // 本次可抽的最大值：min(題庫量, 500)
       const maxAllowed = Math.min(pool.length, 500);
 
       if(v === "all") return maxAllowed;
@@ -368,14 +372,37 @@
         const c = clampInt(customCount.value, 1, maxAllowed);
         return c;
       }
-
-      // 固定選項也不超過 maxAllowed
       return clampInt(v, 1, maxAllowed);
+    }
+
+    function setFinishedUI(isFinished){
+      finished = isFinished;
+
+      // 下一題
+      btnNext1.disabled = finished;
+      btnNext2.disabled = finished;
+
+      // 填空輸入
+      textAnswer.disabled = finished;
+      btnCheck1.disabled = finished;
+
+      // 四選一全部鎖住（如果題目已渲染）
+      if(mode === "E2C"){
+        [...choices.children].forEach(b => b.disabled = finished);
+      }
+
+      if(finished){
+        const total = ok + bad;
+        const rate = total ? Math.round((ok/total)*100) : 0;
+        const msg = `🎉 測驗結束！共 ${session.length} 題，答對 ${ok} 題，正確率 ${rate}%。\n按「開始 / 重置」可重新抽題。`;
+        if(mode === "C2E") feedback1.textContent = msg;
+        else feedback2.textContent = msg;
+      }
     }
 
     function buildSession(){
       if(!vocabCache){
-        alert("請先載入題庫 JSON（vocab_cache.json）");
+        alert("題庫尚未載入完成，請稍候或手動載入 JSON。");
         return;
       }
 
@@ -397,6 +424,7 @@
       updateScoreUI();
       updateIndexUI();
       renderQuestion();
+      setFinishedUI(false);
     }
 
     function renderQuestion(){
@@ -406,9 +434,10 @@
       const it = currentItem();
       if(!it){
         promptLabel.textContent = "提示";
-        promptText.textContent = "目前沒有題目。請載入題庫並按「開始 / 重置」。";
+        promptText.textContent = "目前沒有題目（可能該 Level 沒資料）。";
         levelTag.style.display = "none";
         choices.innerHTML = "";
+        setFinishedUI(true);
         return;
       }
 
@@ -419,6 +448,8 @@
         promptLabel.textContent = "中文 / 解釋";
         promptText.textContent = it.definition;
         textAnswer.value = "";
+        textAnswer.disabled = false;
+        btnCheck1.disabled = false;
         textAnswer.focus();
       }else{
         promptLabel.textContent = "英文（含音標）";
@@ -442,6 +473,7 @@
         btn.className = "choice";
         btn.textContent = opt;
         btn.onclick = () => {
+          if(finished) return;
           if(locked) return;
           locked = true;
 
@@ -473,6 +505,7 @@
       feedback1.textContent = "";
       feedback2.textContent = "";
       renderQuestion();
+      setFinishedUI(finished);
     }
 
     tabC2E.onclick = () => setMode("C2E");
@@ -482,12 +515,10 @@
       const v = countSelect.value;
       customCount.style.display = (v === "custom") ? "" : "none";
       if(v === "custom"){
-        // 預設給 100（你也可改）
         if(!customCount.value) customCount.value = "100";
       }
     };
 
-    // ✅ 防呆：直接輸入也限制 1~500
     customCount.addEventListener("input", () => {
       const v = clampInt(customCount.value, 1, 500);
       customCount.value = String(v);
@@ -496,10 +527,11 @@
     btnStart.onclick = () => buildSession();
 
     function checkC2E(){
+      if(finished) return;
       const it = currentItem();
       if(!it) return;
-      const ans = (textAnswer.value || "").trim();
 
+      const ans = (textAnswer.value || "").trim();
       if(!ans){
         feedback1.textContent = "請先輸入答案";
         return;
@@ -525,23 +557,14 @@
     });
 
     btnShowAnswer1.onclick = () => {
+      if(finished) return;
       const it = currentItem();
       if(!it) return;
       feedback1.textContent = `✅ 答案：${showWordWithIpa(it.word, it.ipa)}`;
     };
 
-    function nextQuestion(){
-      if(!session.length) return;
-      idx = (idx + 1) % session.length;
-      feedback1.textContent = "";
-      feedback2.textContent = "";
-      renderQuestion();
-    }
-
-    btnNext1.onclick = nextQuestion;
-    btnNext2.onclick = nextQuestion;
-
     btnShowAnswer2.onclick = () => {
+      if(finished) return;
       const it = currentItem();
       if(!it) return;
       feedback2.textContent = `✅ 答案：${it.definition}`;
@@ -550,6 +573,25 @@
       });
       locked = true;
     };
+
+    // ✅ 下一題：不循環，到最後就結束
+    function nextQuestion(){
+      if(finished) return;
+      if(!session.length) return;
+
+      if(idx >= session.length - 1){
+        setFinishedUI(true);
+        return;
+      }
+
+      idx += 1;
+      feedback1.textContent = "";
+      feedback2.textContent = "";
+      renderQuestion();
+    }
+
+    btnNext1.onclick = nextQuestion;
+    btnNext2.onclick = nextQuestion;
 
     function populateLevels(){
       levelSelect.innerHTML = "";
@@ -567,25 +609,50 @@
       if(levels.includes("Level 4")) levelSelect.value = "Level 4";
     }
 
+    // ✅ GitHub 上自動載入預設 JSON（不需手動選檔）
+    async function autoLoadDefaultJson(){
+      try{
+        const res = await fetch(DEFAULT_JSON, { cache: "no-store" });
+        if(!res.ok) throw new Error("HTTP " + res.status);
+        vocabCache = await res.json();
+
+        populateLevels();
+        promptText.textContent = "✅ 已自動載入題庫！請選 Level/題數後按「開始 / 重置」。";
+        levelTag.style.display = "none";
+
+        pool = [];
+        session = [];
+        idx = 0; ok = 0; bad = 0; locked = false;
+        updateScoreUI();
+        updateIndexUI();
+        setFinishedUI(false);
+      }catch(e){
+        console.error("autoLoadDefaultJson failed:", e);
+        promptText.textContent = "⚠️ 自動載入題庫失敗：請確認 GitHub Pages 已開啟，且 vocab_ceec_1_6.json 與 index.html 同層。";
+      }
+    }
+
+    // 保留：手動載入（方便換檔）
     btnLoad.onclick = async () => {
       const f = fileInput.files && fileInput.files[0];
       if(!f){
-        alert("請先選擇 vocab_cache.json 檔案");
+        alert("請先選擇 JSON 檔案");
         return;
       }
       try{
         const text = await f.text();
         vocabCache = JSON.parse(text);
         populateLevels();
-        promptText.textContent = "已載入題庫！請按「開始 / 重置」開始出題。";
+        promptText.textContent = "✅ 已手動載入題庫！請按「開始 / 重置」開始出題。";
         levelTag.style.display = "none";
         pool = [];
         session = [];
-        idx = 0; ok = 0; bad = 0;
+        idx = 0; ok = 0; bad = 0; locked = false;
         updateScoreUI();
         updateIndexUI();
+        setFinishedUI(false);
       }catch(e){
-        alert("JSON 解析失敗，請確認檔案格式正確：vocab_cache.json");
+        alert("JSON 解析失敗，請確認檔案格式正確。");
       }
     };
 
@@ -600,6 +667,9 @@
 
     updateScoreUI();
     updateIndexUI();
+
+    // ✅ 一進頁面就先自動抓 GitHub JSON
+    autoLoadDefaultJson();
   </script>
 </body>
 </html>
