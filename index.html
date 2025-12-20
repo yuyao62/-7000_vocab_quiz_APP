@@ -87,9 +87,8 @@
     }
     .box .label{color:#374151; font-weight:800; margin-bottom:6px;}
 
-    /* ✅ 題目框字體加大 */
     .prompt{
-      font-size:22px;         /* 原本 18px */
+      font-size:22px;
       font-weight:900;
       line-height:1.35;
       white-space:pre-wrap;
@@ -179,8 +178,6 @@
                  style="display:none;width:120px;" />
 
           <button id="btnStart" class="btn ghost">開始 / 重置</button>
-
-          <!-- ✅ 清除錯題放上方 -->
           <button id="btnClearWrong" class="btn">清除錯題</button>
         </div>
 
@@ -229,14 +226,15 @@
 
       <div class="hr"></div>
 
-      <div class="tip">Tip：本頁會自動載入同層的 vocab_ceec_1_6.json；選 Level 後會自動帶入出題；填空模式可按 Enter 送出；右上可切換模式 / Level / 題數。</div>
+      <div class="tip">Tip：本頁會自動載入同層的 <b>vocab_cache.json（不去重完整版）</b>；選 Level 後會自動帶入出題；填空模式可按 Enter 送出；右上可切換模式 / Level / 題數。</div>
     </div>
   </div>
 
   <script>
-    const DEFAULT_JSON = "./vocab_ceec_1_6.json";
+    // ✅ 改成讀不去重完整版
+    const DEFAULT_JSON = "./vocab_cache.json";
 
-    let vocabCache = null; // 會被統一成：{ "Level 1":[...], ..., "Level 6":[...] }
+    let vocabCache = null; // 統一成：{ "Level 1":[...], ..., "Level 6":[...] }
     let mode = "C2E";
 
     let pool = [];
@@ -244,7 +242,7 @@
     let idx = 0;
     let ok = 0, bad = 0;
     let locked = false;
-    let finished = false; // 固定題數：做到最後就結束
+    let finished = false;
 
     const tabC2E = document.getElementById("tabC2E");
     const tabE2C = document.getElementById("tabE2C");
@@ -384,7 +382,7 @@
       const key = "vt_wrong";
       let list = [];
       try{ list = JSON.parse(localStorage.getItem(key) || "[]"); }catch(e){ list = []; }
-      if(!list.some(x => x && x.word === item.word)){
+      if(!list.some(x => x && x.word === item.word && x.definition === item.definition)){
         list.push({word:item.word, definition:item.definition, ipa:item.ipa || ""});
       }
       localStorage.setItem(key, JSON.stringify(list));
@@ -543,16 +541,12 @@
       const v = countSelect.value;
       customCount.style.display = (v === "custom") ? "" : "none";
       if(v === "custom" && !customCount.value) customCount.value = "100";
-
-      // 若已載入題庫，就立刻依新題數重抽（體感更順）
       if(vocabCache) buildSession();
     };
 
     customCount.addEventListener("input", () => {
       const v = clampInt(customCount.value, 1, 500);
       customCount.value = String(v);
-
-      // 自訂題數改了就重抽
       if(countSelect.value === "custom" && vocabCache) buildSession();
     });
 
@@ -627,7 +621,6 @@
     function populateLevels(){
       levelSelect.innerHTML = "";
       const keys = Object.keys(vocabCache || {});
-
       const levels = keys
         .filter(k => /^Level\s*\d+$/i.test(k))
         .sort((a,b)=>{
@@ -671,11 +664,11 @@
         console.log("Loaded levels:", Object.keys(vocabCache));
       }catch(e){
         console.error("autoLoadDefaultJson failed:", e);
-        promptText.textContent = "⚠️ 自動載入題庫失敗：請確認 vocab_ceec_1_6.json 與 index.html 同層。";
+        promptText.textContent = "⚠️ 自動載入題庫失敗：請確認 vocab_cache.json 與 index.html 同層。";
       }
     }
 
-    // ✅ 這裡是你要的關鍵：選 Level 就自動出題（不用按開始）
+    // 選 Level 就自動出題
     levelSelect.onchange = () => {
       if(!vocabCache) return;
       buildSession();
