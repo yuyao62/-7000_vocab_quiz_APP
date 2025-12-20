@@ -159,7 +159,7 @@
           <label>出題 Level：</label>
           <select id="levelSelect"></select>
 
-          <!-- ✅ 題數選擇（你要加的功能） -->
+          <!-- ✅ 題數選擇 -->
           <label>題數：</label>
           <select id="countSelect">
             <option value="all">全部</option>
@@ -170,7 +170,10 @@
             <option value="200">200</option>
             <option value="custom">自訂</option>
           </select>
-          <input id="customCount" type="number" min="1" step="1" placeholder="自訂題數" style="display:none;width:110px;" />
+
+          <!-- ✅ 自訂題數：限制 1~500 -->
+          <input id="customCount" type="number" min="1" max="500" step="1" placeholder="1-500"
+                 style="display:none;width:110px;" />
 
           <button id="btnStart" class="btn ghost">開始 / 重置</button>
         </div>
@@ -230,25 +233,15 @@
   </div>
 
   <script>
-    // ===========================
-    //   題庫資料格式（vocab_cache.json）
-    //   {
-    //     "Level 1":[{"word":"...","definition":"...","ipa":"[...]"?}, ...],
-    //     ...
-    //   }
-    // ===========================
-
-    // ---- 狀態 ----
     let vocabCache = null;
-    let mode = "C2E"; // C2E: 中->英填空, E2C: 英->中四選一
+    let mode = "C2E";
 
-    let pool = [];          // 目前 Level 的全題庫（normalized items）
-    let session = [];       // 本次抽題後的題目陣列
-    let idx = 0;            // 目前題號
-    let ok = 0, bad = 0;    // 計分
-    let locked = false;     // E2C 防止重複點選
+    let pool = [];
+    let session = [];
+    let idx = 0;
+    let ok = 0, bad = 0;
+    let locked = false;
 
-    // ---- DOM ----
     const tabC2E = document.getElementById("tabC2E");
     const tabE2C = document.getElementById("tabE2C");
 
@@ -287,9 +280,6 @@
     const btnLoad = document.getElementById("btnLoad");
     const btnClearWrong = document.getElementById("btnClearWrong");
 
-    // ===========================
-    //   工具
-    // ===========================
     function normalizeItem(item){
       if(!item || typeof item !== "object") return null;
 
@@ -299,7 +289,6 @@
 
       if(!word || !defRaw) return null;
 
-      // 取開頭 [IPA]（如果 definition 以音標開頭）
       const m = defRaw.match(/^\s*\[([^\]]+)\]\s*(.*)$/);
       if(m){
         const ipaFromDef = `[${m[1].trim()}]`;
@@ -316,8 +305,7 @@
     function showWordWithIpa(word, ipa){
       const w = (word || "").trim();
       const i = (ipa || "").trim();
-      if(w && i) return `${w} ${i}`;
-      return w;
+      return (w && i) ? `${w} ${i}` : w;
     }
 
     function shuffle(arr){
@@ -354,12 +342,9 @@
     }
 
     function saveWrong(item){
-      // 存到 localStorage
       const key = "vt_wrong";
       let list = [];
       try{ list = JSON.parse(localStorage.getItem(key) || "[]"); }catch(e){ list = []; }
-
-      // 以 word 去重
       if(!list.some(x => x && x.word === item.word)){
         list.push({word:item.word, definition:item.definition, ipa:item.ipa || ""});
       }
@@ -370,17 +355,22 @@
       localStorage.removeItem("vt_wrong");
     }
 
-    // ===========================
-    //   ✅ 題數選擇（核心）
-    // ===========================
+    // ✅ 題數選擇：自訂 1~500，且不超過該 Level 題庫數量
     function getDesiredCount(){
       const v = countSelect.value;
-      if(v === "all") return pool.length;
+
+      // 本次可抽的最大值：min(題庫量, 500)
+      const maxAllowed = Math.min(pool.length, 500);
+
+      if(v === "all") return maxAllowed;
+
       if(v === "custom"){
-        const c = clampInt(customCount.value, 1, pool.length);
+        const c = clampInt(customCount.value, 1, maxAllowed);
         return c;
       }
-      return clampInt(v, 1, pool.length);
+
+      // 固定選項也不超過 maxAllowed
+      return clampInt(v, 1, maxAllowed);
     }
 
     function buildSession(){
@@ -394,9 +384,8 @@
       pool = rawList.map(normalizeItem).filter(Boolean);
 
       const n = getDesiredCount();
-      const picked = shuffle([...pool]).slice(0, n);
+      session = shuffle([...pool]).slice(0, n);
 
-      session = picked;
       idx = 0;
       ok = 0;
       bad = 0;
@@ -427,13 +416,11 @@
       levelTag.textContent = levelSelect.value;
 
       if(mode === "C2E"){
-        // 中->英填空：題幹顯示中文/解釋
         promptLabel.textContent = "中文 / 解釋";
         promptText.textContent = it.definition;
         textAnswer.value = "";
         textAnswer.focus();
       }else{
-        // 英->中四選一：題幹顯示英文+音標
         promptLabel.textContent = "英文（含音標）";
         promptText.textContent = showWordWithIpa(it.word, it.ipa);
         renderChoices(it);
@@ -444,17 +431,10 @@
       choices.innerHTML = "";
       feedback2.textContent = "";
 
-      // 正確選項
       const correct = it.definition;
-
-      // 從 pool 抽 3 個干擾
-      const candidates = pool
-        .map(x => x.definition)
-        .filter(d => d && d !== correct);
-
+      const candidates = pool.map(x => x.definition).filter(d => d && d !== correct);
       shuffle(candidates);
       const distractors = candidates.slice(0, Math.min(3, candidates.length));
-
       const opts = shuffle([correct, ...distractors]);
 
       opts.forEach((opt) => {
@@ -474,7 +454,6 @@
             bad++;
             feedback2.textContent = `❌ 錯誤，正確答案：${correct}`;
             saveWrong(it);
-            // 標出正確
             [...choices.children].forEach(b=>{
               if(b.textContent === correct) b.classList.add("correct");
             });
@@ -485,9 +464,6 @@
       });
     }
 
-    // ===========================
-    //   事件：模式切換
-    // ===========================
     function setMode(next){
       mode = next;
       tabC2E.classList.toggle("active", mode==="C2E");
@@ -502,22 +478,23 @@
     tabC2E.onclick = () => setMode("C2E");
     tabE2C.onclick = () => setMode("E2C");
 
-    // ===========================
-    //   事件：題數 UI 顯示
-    // ===========================
     countSelect.onchange = () => {
       const v = countSelect.value;
       customCount.style.display = (v === "custom") ? "" : "none";
+      if(v === "custom"){
+        // 預設給 100（你也可改）
+        if(!customCount.value) customCount.value = "100";
+      }
     };
 
-    // ===========================
-    //   事件：開始 / 重置
-    // ===========================
+    // ✅ 防呆：直接輸入也限制 1~500
+    customCount.addEventListener("input", () => {
+      const v = clampInt(customCount.value, 1, 500);
+      customCount.value = String(v);
+    });
+
     btnStart.onclick = () => buildSession();
 
-    // ===========================
-    //   C2E：檢查 / 顯示答案 / 下一題
-    // ===========================
     function checkC2E(){
       const it = currentItem();
       if(!it) return;
@@ -568,16 +545,12 @@
       const it = currentItem();
       if(!it) return;
       feedback2.textContent = `✅ 答案：${it.definition}`;
-      // 標出正確
       [...choices.children].forEach(b=>{
         if(b.textContent === it.definition) b.classList.add("correct");
       });
       locked = true;
     };
 
-    // ===========================
-    //   載入 JSON
-    // ===========================
     function populateLevels(){
       levelSelect.innerHTML = "";
       const levels = Object.keys(vocabCache || {}).sort((a,b)=>{
@@ -591,9 +564,7 @@
         opt.textContent = lv;
         levelSelect.appendChild(opt);
       });
-      // 預設選 Level 4（若存在）
-      const has4 = levels.includes("Level 4");
-      if(has4) levelSelect.value = "Level 4";
+      if(levels.includes("Level 4")) levelSelect.value = "Level 4";
     }
 
     btnLoad.onclick = async () => {
@@ -604,8 +575,7 @@
       }
       try{
         const text = await f.text();
-        const obj = JSON.parse(text);
-        vocabCache = obj;
+        vocabCache = JSON.parse(text);
         populateLevels();
         promptText.textContent = "已載入題庫！請按「開始 / 重置」開始出題。";
         levelTag.style.display = "none";
@@ -619,10 +589,7 @@
       }
     };
 
-    // 更換 Level 後，通常會想重抽題
     levelSelect.onchange = () => {
-      // 不自動重抽也可以，但多數人期待直接更新
-      // 這裡選擇「不強制」，但有題目時會即時更新提示
       if(session.length) buildSession();
     };
 
@@ -631,7 +598,6 @@
       alert("已清除錯題紀錄（localStorage）");
     };
 
-    // 初始 UI
     updateScoreUI();
     updateIndexUI();
   </script>
